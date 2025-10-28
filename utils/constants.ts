@@ -168,6 +168,10 @@ export const COLORS = {
   // Shadow colors
   SHADOW: 'rgba(0, 0, 0, 0.1)',
   SHADOW_DARK: 'rgba(0, 0, 0, 0.15)',
+
+  // React Native Switch colors (boolean true/false values)
+  SWITCH_ENABLED: true,
+  SWITCH_DISABLED: false,
 } as const;
 
 /**
