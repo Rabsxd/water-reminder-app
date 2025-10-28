@@ -34,13 +34,15 @@ A React Native application built with Expo to help users maintain healthy hydrat
 
 ## 🏗️ Technical Stack
 
-- **Framework**: React Native with Expo SDK (Managed Workflow)
+- **Framework**: React Native with Expo SDK (Managed Workflow) + Expo Router
+- **Language**: TypeScript with strict type checking
 - **State Management**: React Context API with useReducer
-- **Navigation**: React Navigation
+- **Navigation**: Expo Router (file-based routing)
 - **Storage**: Expo AsyncStorage
 - **Notifications**: Expo Notifications API
 - **Animations**: React Native Reanimated & Lottie
 - **Build Tool**: EAS Build
+- **Project Structure**: Root project structure (no src/ folder)
 
 ## 🚀 Getting Started
 
@@ -101,26 +103,39 @@ eas submit --platform android
 
 ```
 WaterReminderApp/
-├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── common/         # Shared components
-│   │   ├── home/           # Home screen components
-│   │   ├── stats/          # Statistics screen components
-│   │   └── settings/       # Settings screen components
-│   ├── context/            # State management
-│   ├── hooks/              # Custom React hooks
-│   ├── navigation/         # Navigation configuration
-│   ├── screens/            # Main app screens
-│   ├── services/           # Business logic services
-│   ├── utils/              # Utility functions
-│   ├── assets/             # Images and animations
-│   └── styles/             # Global styles and themes
-├── App.js                  # Main app component
+├── app/                     # Expo Router pages
+│   ├── _layout.tsx         # Root layout with navigation
+│   └── (tabs)/             # Tab navigation group
+│       ├── _layout.tsx     # Tab layout
+│       ├── index.tsx       # Home screen
+│       ├── stats.tsx       # Statistics screen
+│       └── settings.tsx    # Settings screen
+├── components/              # Reusable UI components
+│   ├── common/             # Shared components
+│   ├── home/               # Home screen components
+│   ├── stats/              # Statistics screen components
+│   └── settings/           # Settings screen components
+├── context/                # State management
+├── hooks/                  # Custom React hooks
+├── services/               # Business logic services
+├── utils/                  # Utility functions
+├── styles/                 # Global styles and themes
+├── assets/                 # Images and animations
+│   ├── lottie/             # Lottie animations
+│   └── images/             # Images and icons
 ├── app.json                # Expo configuration
 ├── package.json            # Dependencies and scripts
 ├── eas.json                # EAS Build configuration
-└── CLAUDE.md               # Development guidelines
+├── tsconfig.json           # TypeScript configuration
+├── CLAUDE.md               # Development guidelines
+└── README.md               # Project documentation
 ```
+
+**Key Features:**
+- **File-based routing** with Expo Router
+- **TypeScript** throughout the entire project
+- **No src/ folder** - following Expo Router conventions
+- **Modular component structure** for maintainability
 
 ## 📱 App Screens
 
@@ -229,17 +244,20 @@ WaterReminderApp/
 
 ```json
 {
-  "expo": "~50.0.0",
-  "react": "18.2.0",
-  "react-native": "0.73.6",
-  "@react-navigation/native": "^6.1.9",
-  "@react-navigation/bottom-tabs": "^6.5.11",
-  "react-native-reanimated": "~3.6.2",
-  "react-native-gesture-handler": "~2.14.0",
-  "@react-native-async-storage/async-storage": "1.21.0",
-  "expo-notifications": "~0.27.6",
-  "expo-device": "~5.8.3",
-  "lottie-react-native": "6.5.1"
+  "expo": "~54.0.20",
+  "react": "19.1.0",
+  "react-native": "0.81.5",
+  "expo-router": "~6.0.13",
+  "@react-navigation/native": "^7.1.8",
+  "@react-navigation/bottom-tabs": "^7.4.0",
+  "react-native-reanimated": "~4.1.1",
+  "react-native-gesture-handler": "~2.28.0",
+  "@react-native-async-storage/async-storage": "2.2.0",
+  "expo-notifications": "~0.32.12",
+  "expo-device": "~8.0.9",
+  "expo-haptics": "~15.0.7",
+  "lottie-react-native": "^7.3.4",
+  "react-native-svg": "^15.14.0"
 }
 ```
 
@@ -247,9 +265,10 @@ WaterReminderApp/
 
 ```json
 {
-  "@babel/core": "^7.20.0",
-  "eslint": "^8.56.0",
-  "eslint-config-expo": "^7.0.0"
+  "@types/react": "~19.1.0",
+  "typescript": "~5.9.2",
+  "eslint": "^9.25.0",
+  "eslint-config-expo": "~10.0.0"
 }
 ```
 
@@ -288,12 +307,14 @@ WaterReminderApp/
 
 This project follows the development guidelines outlined in [CLAUDE.md](./CLAUDE.md). Key principles:
 
-- Use functional components with hooks
-- Follow the established file structure
-- Include comprehensive error handling
-- Validate all user inputs
-- Test edge cases thoroughly
-- Maintain consistent code style
+- **TypeScript**: Use strict typing throughout the project
+- **Functional Components**: Use functional components with hooks
+- **Expo Router**: Follow file-based routing conventions
+- **JSDoc Documentation**: Comprehensive JSDoc comments for all functions
+- **Error Handling**: Include comprehensive error handling
+- **File Structure**: Follow root project structure (no src/ folder)
+- **Code Quality**: Validate all user inputs and test edge cases
+- **Consistency**: Maintain consistent code style and naming conventions
 
 ## 📄 License
 
