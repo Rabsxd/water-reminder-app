@@ -124,50 +124,74 @@ export const ANIMATION_DURATION = {
 } as const;
 
 /**
- * Color palette
+ * Color palette - Using enhanced water theme
  * @constant {Object}
  */
 export const COLORS = {
-  // Primary colors
-  PRIMARY: '#4A90E2',
-  PRIMARY_DARK: '#357ABD',
-  PRIMARY_LIGHT: '#E6F4FE',
+  // Primary colors - Blue water theme
+  PRIMARY: '#00CED1', // Dark Turquoise
+  PRIMARY_DARK: '#008B8B', // Dark Cyan
+  PRIMARY_LIGHT: '#B0E0E6', // Powder Blue
 
-  // Secondary colors
-  SECONDARY: '#50C878',
-  SECONDARY_DARK: '#3FA560',
-  SECONDARY_LIGHT: '#E8F8F0',
+  // Secondary colors - Complementary
+  SECONDARY: '#4682B4', // Steel Blue
+  SECONDARY_DARK: '#1E90FF', // Dodger Blue
+  SECONDARY_LIGHT: '#87CEEB', // Sky Blue
 
   // Background colors
   BACKGROUND: '#FFFFFF',
-  BACKGROUND_CARD: '#F8F9FA',
-  BACKGROUND_DISABLED: '#E9ECEF',
+  BACKGROUND_CARD: '#F9FAFB',
+  BACKGROUND_DISABLED: '#F3F4F6',
 
   // Text colors
-  TEXT_PRIMARY: '#2C3E50',
-  TEXT_SECONDARY: '#7F8C8D',
-  TEXT_DISABLED: '#BDC3C7',
+  TEXT_PRIMARY: '#111827',
+  TEXT_SECONDARY: '#6B7280',
+  TEXT_DISABLED: '#9CA3AF',
   TEXT_WHITE: '#FFFFFF',
 
   // Status colors
-  SUCCESS: '#50C878',
-  WARNING: '#F39C12',
-  ERROR: '#E74C3C',
-  INFO: '#4A90E2',
+  SUCCESS: '#32CD32', // Lime Green
+  WARNING: '#FF8C00', // Dark Orange
+  ERROR: '#DC143C', // Crimson
+  INFO: '#4169E1', // Royal Blue
 
-  // Water progress colors
-  WATER_LOW: '#E74C3C',
-  WATER_MEDIUM: '#F39C12',
-  WATER_GOOD: '#50C878',
-  WATER_EXCELLENT: '#27AE60',
+  // Water progress colors - Enhanced water theme
+  WATER_LOW: '#DC143C', // Poor hydration - Red
+  WATER_MEDIUM: '#FF8C00', // Okay hydration - Orange
+  WATER_GOOD: '#00CED1', // Good hydration - Turquoise
+  WATER_EXCELLENT: '#32CD32', // Excellent hydration - Green
+
+  // Special water colors
+  WATER_DROPLET: '#00BFFF', // Deep Sky Blue
+  WATER_WAVE: '#87CEEB', // Sky Blue
+  WATER_BUBBLE: '#E0FFFF', // Light Cyan
+
+  // Progress colors
+  PROGRESS_START: '#E0F2FE', // Start color (light blue)
+  PROGRESS_END: '#0284C7', // End color (dark blue)
+  PROGRESS_COMPLETE: '#10B981', // Complete color (green)
 
   // Border colors
-  BORDER: '#E1E4E8',
-  BORDER_FOCUS: '#4A90E2',
+  BORDER: '#E5E7EB',
+  BORDER_FOCUS: '#00CED1',
+  BORDER_LIGHT: '#F3F4F6',
+  BORDER_DARK: '#D1D5DB',
 
   // Shadow colors
   SHADOW: 'rgba(0, 0, 0, 0.1)',
-  SHADOW_DARK: 'rgba(0, 0, 0, 0.15)',
+  SHADOW_DARK: 'rgba(0, 0, 0, 0.25)',
+
+  // Additional colors for consistency
+  GRAY_50: '#F9FAFB',
+  GRAY_100: '#F3F4F6',
+  GRAY_200: '#E5E7EB',
+  GRAY_300: '#D1D5DB',
+  GRAY_400: '#9CA3AF',
+  GRAY_500: '#6B7280',
+  GRAY_600: '#4B5563',
+  GRAY_700: '#374151',
+  GRAY_800: '#1F2937',
+  GRAY_900: '#111827',
 
   // React Native Switch colors (boolean true/false values)
   SWITCH_ENABLED: true,
@@ -175,19 +199,25 @@ export const COLORS = {
 } as const;
 
 /**
- * Typography constants
+ * Typography constants - Enhanced with better hierarchy
  * @constant {Object}
  */
 export const TYPOGRAPHY = {
-  // Font sizes
-  FONT_SIZE_XS: 12,
-  FONT_SIZE_SM: 14,
-  FONT_SIZE_BASE: 16,
-  FONT_SIZE_LG: 18,
-  FONT_SIZE_XL: 20,
-  FONT_SIZE_2XL: 24,
-  FONT_SIZE_3XL: 30,
-  FONT_SIZE_4XL: 36,
+  // Font sizes - Enhanced hierarchy
+  FONT_SIZE_XS: 10,    // Caption, labels
+  FONT_SIZE_SM: 12,    // Small text, captions
+  FONT_SIZE_BASE: 14,  // Body text
+  FONT_SIZE_MD: 16,    // Standard body
+  FONT_SIZE_LG: 18,    // Small headings
+  FONT_SIZE_XL: 20,    // Medium headings
+  FONT_SIZE_2XL: 24,   // Large headings
+  FONT_SIZE_3XL: 30,   // Display text
+  FONT_SIZE_4XL: 36,   // Hero display
+
+  // Legacy naming compatibility
+  FONT_SIZE_SMALL: 12,
+  FONT_SIZE_MEDIUM: 14,
+  FONT_SIZE_LARGE: 18,
 
   // Font weights
   FONT_WEIGHT_NORMAL: '400',
@@ -195,17 +225,26 @@ export const TYPOGRAPHY = {
   FONT_WEIGHT_SEMI_BOLD: '600',
   FONT_WEIGHT_BOLD: '700',
 
-  // Line heights
-  LINE_HEIGHT_TIGHT: 1.2,
-  LINE_HEIGHT_NORMAL: 1.4,
-  LINE_HEIGHT_RELAXED: 1.6,
+  // Line heights - Better readability
+  LINE_HEIGHT_TIGHT: 1.0,
+  LINE_HEIGHT_NORMAL: 1.2,
+  LINE_HEIGHT_RELAXED: 1.4,
+  LINE_HEIGHT_LOOSE: 1.6,
+
+  // Letter spacing
+  LETTER_SPACING_TIGHT: -0.5,
+  LETTER_SPACING_NORMAL: 0,
+  LETTER_SPACING_WIDE: 0.5,
+  LETTER_SPACING_EXTRA_WIDE: 1.0,
 } as const;
 
 /**
- * Spacing constants
+ * Spacing constants - Enhanced with better scale
  * @constant {Object}
  */
 export const SPACING = {
+  // Micro spacing
+  XXS: 2,
   XS: 4,
   SM: 8,
   MD: 16,
@@ -213,18 +252,27 @@ export const SPACING = {
   XL: 32,
   XXL: 48,
   XXXL: 64,
+  XXXXL: 80,
+
+  // Common spacing combinations
+  TIGHT: 8,
+  NORMAL: 16,
+  LOOSE: 24,
+  EXTRA_LOOSE: 32,
 } as const;
 
 /**
- * Border radius constants
+ * Border radius constants - Enhanced variety
  * @constant {Object}
  */
 export const BORDER_RADIUS = {
-  SM: 4,
-  MD: 8,
-  LG: 12,
-  XL: 16,
-  FULL: 9999,
+  XS: 2,     // Subtle corners
+  SM: 4,     // Small corners
+  MD: 8,     // Standard corners
+  LG: 12,    // Large corners
+  XL: 16,    // Extra large corners
+  XXL: 24,   // Very large corners
+  FULL: 9999, // Perfect circles
 } as const;
 
 /**
@@ -232,10 +280,100 @@ export const BORDER_RADIUS = {
  * @constant {Object}
  */
 export const BREAKPOINTS = {
-  SM: 375,
-  MD: 768,
-  LG: 1024,
-  XL: 1280,
+  SM: 375,  // iPhone SE
+  MD: 768,  // iPad Mini
+  LG: 1024, // iPad
+  XL: 1280, // Large tablets
+} as const;
+
+/**
+ * Shadow and elevation constants
+ * @constant {Object}
+ */
+export const SHADOWS = {
+  NONE: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  SMALL: {
+    shadowColor: COLORS.SHADOW,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  MEDIUM: {
+    shadowColor: COLORS.SHADOW,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  LARGE: {
+    shadowColor: COLORS.SHADOW_DARK,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+} as const;
+
+/**
+ * Z-index layering constants
+ * @constant {Object}
+ */
+export const Z_INDEX = {
+  BACKGROUND: -1,
+  BASE: 0,
+  OVERLAY: 10,
+  DROPDOWN: 20,
+  MODAL: 30,
+  POPOVER: 40,
+  TOOLTIP: 50,
+  NOTIFICATION: 100,
+} as const;
+
+/**
+ * Animation duration constants
+ * @constant {Object}
+ */
+export const ANIMATION_TIMING = {
+  FAST: 150,
+  NORMAL: 300,
+  SLOW: 500,
+  EXTRA_SLOW: 1000,
+} as const;
+
+/**
+ * Accessibility constants
+ * @constant {Object}
+ */
+export const ACCESSIBILITY = {
+  // Minimum touch target size (44x44 points for iOS)
+  MIN_TOUCH_TARGET: 44,
+
+  // High contrast colors
+  HIGH_CONTRAST: {
+    BACKGROUND: COLORS.TEXT_WHITE,
+    TEXT: COLORS.TEXT_PRIMARY,
+    PRIMARY: COLORS.PRIMARY_DARK,
+    SUCCESS: COLORS.SUCCESS,
+    WARNING: COLORS.WARNING,
+    ERROR: COLORS.ERROR,
+  },
+
+  // Screen reader labels
+  LABELS: {
+    WATER_AMOUNT: (amount: number) => `${amount} mililiter air`,
+    PROGRESS_PERCENTAGE: (percentage: number) => `${percentage} persen target tercapai`,
+    ADD_WATER: 'Tambah air',
+    REMOVE_ENTRY: 'Hapus entri',
+    SETTINGS: 'Pengaturan',
+    NOTIFICATIONS: 'Notifikasi',
+  },
 } as const;
 
 /**
