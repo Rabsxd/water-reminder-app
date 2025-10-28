@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { waterReducer, createInitialState } from './waterReducer';
 import { STORAGE_KEYS } from '../utils/constants';
 import { calculateStreak, calculateWeeklyAverage, isToday, formatDateToYYYYMMDD, isNewDay } from '../utils/dateUtils';
+import { useNotifications } from '../hooks/useNotifications';
 import type { WaterState, WaterAction, UserSettings, TodayData, HistoryEntry } from '../utils/types';
 
 /**
@@ -23,14 +24,27 @@ export interface WaterContextType {
   addDrink: (amount: number) => Promise<void>;
   removeDrink: (drinkId: string) => Promise<void>;
   updateSettings: (settings: Partial<UserSettings>) => Promise<void>;
+  updateReminderSettings: (settings: any) => Promise<void>;
   resetDaily: () => Promise<void>;
   clearError: () => void;
+
+  // Notification actions
+  initializeNotifications: () => Promise<boolean>;
+  scheduleReminder: () => Promise<string | null>;
+  cancelReminders: () => Promise<number>;
+  showTestNotification: () => Promise<string | null>;
+  requestNotificationPermissions: () => Promise<boolean>;
 
   // Computed values
   progress: number; // 0-1
   isTargetReached: boolean;
   todayLogsCount: number;
   remainingAmount: number;
+
+  // Notification state
+  notificationsEnabled: boolean;
+  notificationPermissionStatus: string;
+  notificationError: string | null;
 }
 
 /**
@@ -58,6 +72,64 @@ interface WaterProviderProps {
  */
 export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(waterReducer, createInitialState());
+
+  // Initialize notifications hook
+  const notificationSettings = {
+    enabled: state.settings.reminderEnabled,
+    interval: state.settings.reminderInterval,
+    sound: state.settings.soundEnabled,
+    vibration: state.settings.vibrationEnabled,
+    wakeHours: state.settings.wakeHours,
+  };
+
+  const notifications = useNotifications(notificationSettings);
+
+  /**
+   * Initialize notifications on mount
+   */
+  useEffect(() => {
+    if (!state.isLoading && notifications.isInitialized) {
+      // Schedule initial reminder if notifications are enabled
+      if (state.settings.reminderEnabled && state.today.intake < state.settings.dailyTarget) {
+        notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
+      }
+    }
+  }, [state.isLoading, notifications.isInitialized]);
+
+  /**
+   * Auto-schedule reminders after adding drinks
+   */
+  useEffect(() => {
+    if (state.settings.reminderEnabled && state.today.intake < state.settings.dailyTarget) {
+      // Schedule next reminder after a short delay
+      const timer = setTimeout(() => {
+        notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [state.today.intake]);
+
+  /**
+   * Handle notification settings changes
+   */
+  useEffect(() => {
+    if (notifications.isInitialized && state.settings.reminderEnabled) {
+      // Reschedule reminders when settings change
+      if (state.today.intake < state.settings.dailyTarget) {
+        notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
+      }
+    } else if (notifications.isInitialized && !state.settings.reminderEnabled) {
+      // Cancel all reminders when disabled
+      notifications.cancelReminders();
+    }
+  }, [
+    state.settings.reminderEnabled,
+    state.settings.reminderInterval,
+    state.settings.wakeHours,
+    state.settings.soundEnabled,
+    state.settings.vibrationEnabled,
+  ]);
 
   /**
    * Load data from AsyncStorage on mount
@@ -315,6 +387,43 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
   };
 
   /**
+   * Update reminder settings specifically
+   * @param {Object} reminderSettings - Reminder settings to update
+   * @returns {Promise<void>}
+   */
+  const updateReminderSettings = async (reminderSettings: {
+    enabled?: boolean;
+    interval?: number;
+    sound?: boolean;
+    vibration?: boolean;
+  }): Promise<void> => {
+    try {
+      const settingsToUpdate: Partial<UserSettings> = {};
+
+      if (typeof reminderSettings.enabled !== 'undefined') {
+        settingsToUpdate.reminderEnabled = reminderSettings.enabled;
+      }
+      if (typeof reminderSettings.interval !== 'undefined') {
+        settingsToUpdate.reminderInterval = reminderSettings.interval;
+      }
+      if (typeof reminderSettings.sound !== 'undefined') {
+        settingsToUpdate.soundEnabled = reminderSettings.sound;
+      }
+      if (typeof reminderSettings.vibration !== 'undefined') {
+        settingsToUpdate.vibrationEnabled = reminderSettings.vibration;
+      }
+
+      await updateSettings(settingsToUpdate);
+    } catch (error) {
+      console.error('Failed to update reminder settings:', error);
+      dispatch({
+        type: 'SET_ERROR',
+        payload: 'Failed to update reminder settings. Please try again.',
+      });
+    }
+  };
+
+  /**
    * Reset daily data (for testing or manual reset)
    * @returns {Promise<void>}
    */
@@ -335,6 +444,27 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
    */
   const clearError = (): void => {
     dispatch({ type: 'CLEAR_ERROR' });
+  };
+
+  // Notification action functions
+  const initializeNotifications = async (): Promise<boolean> => {
+    return await notifications.initialize();
+  };
+
+  const scheduleReminder = async (): Promise<string | null> => {
+    return await notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
+  };
+
+  const cancelReminders = async (): Promise<number> => {
+    return await notifications.cancelReminders();
+  };
+
+  const showTestNotification = async (): Promise<string | null> => {
+    return await notifications.showTestNotification();
+  };
+
+  const requestNotificationPermissions = async (): Promise<boolean> => {
+    return await notifications.requestPermissions();
   };
 
   // Computed values
@@ -360,12 +490,21 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
     addDrink,
     removeDrink,
     updateSettings,
+    updateReminderSettings,
     resetDaily,
     clearError,
+    initializeNotifications,
+    scheduleReminder,
+    cancelReminders,
+    showTestNotification,
+    requestNotificationPermissions,
     progress,
     isTargetReached,
     todayLogsCount,
     remainingAmount,
+    notificationsEnabled: notifications.isEnabled,
+    notificationPermissionStatus: notifications.permissionStatus,
+    notificationError: notifications.error,
   };
 
   return (

@@ -143,7 +143,15 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({
   showAdvanced = false,
   onSave,
 }) => {
-  const { state, updateReminderSettings } = useWater();
+  const {
+    state,
+    updateReminderSettings,
+    notificationsEnabled,
+    notificationPermissionStatus,
+    showTestNotification,
+    requestNotificationPermissions,
+    notificationError
+  } = useWater();
   const [localSettings, setLocalSettings] = React.useState({
     enabled: state.settings.reminderEnabled,
     interval: state.settings.reminderInterval,
@@ -333,6 +341,62 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({
             disabled={!localSettings.enabled}
             icon="📳"
           />
+        </View>
+
+        {/* Notification Status */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notification Status</Text>
+
+          <View style={styles.statusContainer}>
+            <View style={styles.statusItem}>
+              <Text style={styles.statusLabel}>Permissions:</Text>
+              <Text style={[
+                styles.statusValue,
+                notificationPermissionStatus === 'granted' ? styles.statusGranted : styles.statusDenied
+              ]}>
+                {notificationPermissionStatus === 'granted' ? '✅ Granted' :
+                 notificationPermissionStatus === 'denied' ? '❌ Denied' :
+                 '⏳ Not Set'}
+              </Text>
+            </View>
+
+            <View style={styles.statusItem}>
+              <Text style={styles.statusLabel}>Service:</Text>
+              <Text style={[
+                styles.statusValue,
+                notificationsEnabled ? styles.statusGranted : styles.statusDenied
+              ]}>
+                {notificationsEnabled ? '✅ Active' : '❌ Disabled'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Permission request button */}
+          {notificationPermissionStatus !== 'granted' && (
+            <TouchableOpacity
+              style={styles.permissionButton}
+              onPress={requestNotificationPermissions}
+            >
+              <Text style={styles.permissionButtonText}>Enable Notifications</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Test notification button */}
+          {notificationPermissionStatus === 'granted' && localSettings.enabled && (
+            <TouchableOpacity
+              style={styles.testButton}
+              onPress={showTestNotification}
+            >
+              <Text style={styles.testButtonText}>🔔 Test Notification</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Error display */}
+          {notificationError && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>⚠️ {notificationError}</Text>
+            </View>
+          )}
         </View>
 
         {/* Info section */}
@@ -627,5 +691,78 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZE_BASE,
     fontWeight: TYPOGRAPHY.FONT_WEIGHT_SEMI_BOLD,
     color: COLORS.TEXT_WHITE,
+  },
+
+  // Notification status styles
+  statusContainer: {
+    gap: SPACING.SM,
+    marginBottom: SPACING.MD,
+  },
+
+  statusItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.SM,
+  },
+
+  statusLabel: {
+    fontSize: TYPOGRAPHY.FONT_SIZE_BASE,
+    color: COLORS.TEXT_PRIMARY,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHT_MEDIUM,
+  },
+
+  statusValue: {
+    fontSize: TYPOGRAPHY.FONT_SIZE_BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHT_BOLD,
+  },
+
+  statusGranted: {
+    color: COLORS.SUCCESS,
+  },
+
+  statusDenied: {
+    color: COLORS.ERROR,
+  },
+
+  permissionButton: {
+    backgroundColor: COLORS.PRIMARY,
+    padding: SPACING.MD,
+    borderRadius: BORDER_RADIUS.LG,
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  },
+
+  permissionButtonText: {
+    color: COLORS.TEXT_WHITE,
+    fontSize: TYPOGRAPHY.FONT_SIZE_BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHT_SEMI_BOLD,
+  },
+
+  testButton: {
+    backgroundColor: COLORS.SUCCESS,
+    padding: SPACING.MD,
+    borderRadius: BORDER_RADIUS.LG,
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  },
+
+  testButtonText: {
+    color: COLORS.TEXT_WHITE,
+    fontSize: TYPOGRAPHY.FONT_SIZE_BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHT_SEMI_BOLD,
+  },
+
+  errorContainer: {
+    backgroundColor: COLORS.ERROR + '20',
+    padding: SPACING.MD,
+    borderRadius: BORDER_RADIUS.MD,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.ERROR,
+  },
+
+  errorText: {
+    color: COLORS.ERROR,
+    fontSize: TYPOGRAPHY.FONT_SIZE_SM,
   },
 });

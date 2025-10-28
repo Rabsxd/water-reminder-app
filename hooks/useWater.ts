@@ -3,11 +3,19 @@
  * Provides convenient functions and computed values for water tracking
  */
 
-import { useMemo, useCallback } from 'react';
-import { useWaterContext, useWaterState, useWaterActions } from '../context/WaterContext';
-import { calculateGoalPercentage, isGoalCompleted, getTodayLogs } from '../utils/dateUtils';
-import { QUICK_ADD_AMOUNTS, AMOUNT_LIMITS } from '../utils/constants';
-import type { WaterLogEntry } from '../utils/types';
+import { useCallback, useMemo } from "react";
+import {
+  useWaterActions,
+  useWaterContext,
+  useWaterState,
+} from "../context/WaterContext";
+import { AMOUNT_LIMITS, QUICK_ADD_AMOUNTS } from "../utils/constants";
+import {
+  calculateGoalPercentage,
+  getTodayLogs,
+  isGoalCompleted,
+} from "../utils/dateUtils";
+import type { WaterLogEntry } from "../utils/types";
 
 /**
  * Hook for water management functionality
@@ -38,15 +46,18 @@ export const useWater = () => {
    * @example
    * await addQuickAmount(250); // Add 250ml
    */
-  const addQuickAmount = useCallback(async (amount: number): Promise<void> => {
-    // Type assertion since we validated it's a quick add amount
-    if (!QUICK_ADD_AMOUNTS.includes(amount as any)) {
-      console.warn(`Amount ${amount}ml is not a quick add amount`);
-      return;
-    }
+  const addQuickAmount = useCallback(
+    async (amount: number): Promise<void> => {
+      // Type assertion since we validated it's a quick add amount
+      if (!QUICK_ADD_AMOUNTS.includes(amount as any)) {
+        console.warn(`Amount ${amount}ml is not a quick add amount`);
+        return;
+      }
 
-    await actions.addDrink(amount);
-  }, [actions]);
+      await actions.addDrink(amount);
+    },
+    [actions]
+  );
 
   /**
    * Add custom water amount
@@ -59,36 +70,45 @@ export const useWater = () => {
    *   console.error(result.error);
    * }
    */
-  const addCustomAmount = useCallback(async (amount: number): Promise<{ success: boolean; error?: string }> => {
-    // Validate amount
-    if (typeof amount !== 'number' || isNaN(amount)) {
-      return { success: false, error: 'Amount must be a number' };
-    }
+  const addCustomAmount = useCallback(
+    async (amount: number): Promise<{ success: boolean; error?: string }> => {
+      // Validate amount
+      if (typeof amount !== "number" || isNaN(amount)) {
+        return { success: false, error: "Amount must be a number" };
+      }
 
-    if (amount < AMOUNT_LIMITS.MIN) {
-      return { success: false, error: `Minimum amount is ${AMOUNT_LIMITS.MIN}ml` };
-    }
+      if (amount < AMOUNT_LIMITS.MIN) {
+        return {
+          success: false,
+          error: `Minimum amount is ${AMOUNT_LIMITS.MIN}ml`,
+        };
+      }
 
-    if (amount > AMOUNT_LIMITS.MAX) {
-      return { success: false, error: `Maximum amount per entry is ${AMOUNT_LIMITS.MAX}ml` };
-    }
+      if (amount > AMOUNT_LIMITS.MAX) {
+        return {
+          success: false,
+          error: `Maximum amount per entry is ${AMOUNT_LIMITS.MAX}ml`,
+        };
+      }
 
-    // Check daily limit
-    const newTotal = state.today.intake + amount;
-    if (newTotal > AMOUNT_LIMITS.DAILY_MAX) {
-      return {
-        success: false,
-        error: `Daily limit of ${AMOUNT_LIMITS.DAILY_MAX}ml would be exceeded`
-      };
-    }
+      // Check daily limit
+      const newTotal = state.today.intake + amount;
+      if (newTotal > AMOUNT_LIMITS.DAILY_MAX) {
+        return {
+          success: false,
+          error: `Daily limit of ${AMOUNT_LIMITS.DAILY_MAX}ml would be exceeded`,
+        };
+      }
 
-    try {
-      await actions.addDrink(amount);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to add water amount' };
-    }
-  }, [actions, state.today.intake]);
+      try {
+        await actions.addDrink(amount);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: "Failed to add water amount" };
+      }
+    },
+    [actions, state.today.intake]
+  );
 
   /**
    * Remove a water log entry from today
@@ -98,24 +118,27 @@ export const useWater = () => {
    * @example
    * const result = await removeTodayLog('log-123');
    */
-  const removeTodayLog = useCallback(async (logId: string): Promise<{ success: boolean; error?: string }> => {
-    if (!logId || typeof logId !== 'string') {
-      return { success: false, error: 'Valid log ID is required' };
-    }
+  const removeTodayLog = useCallback(
+    async (logId: string): Promise<{ success: boolean; error?: string }> => {
+      if (!logId || typeof logId !== "string") {
+        return { success: false, error: "Valid log ID is required" };
+      }
 
-    // Check if log exists in today's logs
-    const logExists = state.today.logs.some(log => log.id === logId);
-    if (!logExists) {
-      return { success: false, error: 'Log entry not found' };
-    }
+      // Check if log exists in today's logs
+      const logExists = state.today.logs.some((log) => log.id === logId);
+      if (!logExists) {
+        return { success: false, error: "Log entry not found" };
+      }
 
-    try {
-      await actions.removeDrink(logId);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to remove log entry' };
-    }
-  }, [actions, state.today.logs]);
+      try {
+        await actions.removeDrink(logId);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: "Failed to remove log entry" };
+      }
+    },
+    [actions, state.today.logs]
+  );
 
   /**
    * Update daily target
@@ -125,26 +148,32 @@ export const useWater = () => {
    * @example
    * const result = await updateDailyTarget(2500);
    */
-  const updateDailyTarget = useCallback(async (target: number): Promise<{ success: boolean; error?: string }> => {
-    if (typeof target !== 'number' || isNaN(target)) {
-      return { success: false, error: 'Target must be a number' };
-    }
+  const updateDailyTarget = useCallback(
+    async (target: number): Promise<{ success: boolean; error?: string }> => {
+      if (typeof target !== "number" || isNaN(target)) {
+        return { success: false, error: "Target must be a number" };
+      }
 
-    if (target < 1000 || target > 4000) {
-      return { success: false, error: 'Target must be between 1000ml and 4000ml' };
-    }
+      if (target < 1000 || target > 4000) {
+        return {
+          success: false,
+          error: "Target must be between 1000ml and 4000ml",
+        };
+      }
 
-    if (target % 100 !== 0) {
-      return { success: false, error: 'Target must be a multiple of 100ml' };
-    }
+      if (target % 100 !== 0) {
+        return { success: false, error: "Target must be a multiple of 100ml" };
+      }
 
-    try {
-      await actions.updateSettings({ dailyTarget: target });
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to update daily target' };
-    }
-  }, [actions]);
+      try {
+        await actions.updateSettings({ dailyTarget: target });
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: "Failed to update daily target" };
+      }
+    },
+    [actions]
+  );
 
   /**
    * Update reminder settings
@@ -159,62 +188,76 @@ export const useWater = () => {
    *   vibration: false
    * });
    */
-  const updateReminderSettings = useCallback(async (reminderSettings: {
-    enabled?: boolean;
-    interval?: number;
-    sound?: boolean;
-    vibration?: boolean;
-    wakeHours?: { start: number; end: number };
-  }): Promise<{ success: boolean; error?: string }> => {
-    const settingsToUpdate: any = {};
+  const updateReminderSettings = useCallback(
+    async (reminderSettings: {
+      enabled?: boolean;
+      interval?: number;
+      sound?: boolean;
+      vibration?: boolean;
+      wakeHours?: { start: number; end: number };
+    }): Promise<{ success: boolean; error?: string }> => {
+      const settingsToUpdate: any = {};
 
-    // Validate and add settings
-    if (reminderSettings.enabled !== undefined) {
-      if (typeof reminderSettings.enabled !== 'boolean') {
-        return { success: false, error: 'Enabled must be true or false' };
+      // Validate and add settings
+      if (reminderSettings.enabled !== undefined) {
+        if (typeof reminderSettings.enabled !== "boolean") {
+          return { success: false, error: "Enabled must be true or false" };
+        }
+        settingsToUpdate.reminderEnabled = reminderSettings.enabled;
       }
-      settingsToUpdate.reminderEnabled = reminderSettings.enabled;
-    }
 
-    if (reminderSettings.interval !== undefined) {
-      if (typeof reminderSettings.interval !== 'number' ||
+      if (reminderSettings.interval !== undefined) {
+        if (
+          typeof reminderSettings.interval !== "number" ||
           reminderSettings.interval < 15 ||
-          reminderSettings.interval > 240) {
-        return { success: false, error: 'Interval must be between 15 and 240 minutes' };
+          reminderSettings.interval > 240
+        ) {
+          return {
+            success: false,
+            error: "Interval must be between 15 and 240 minutes",
+          };
+        }
+        settingsToUpdate.reminderInterval = reminderSettings.interval;
       }
-      settingsToUpdate.reminderInterval = reminderSettings.interval;
-    }
 
-    if (reminderSettings.sound !== undefined) {
-      if (typeof reminderSettings.sound !== 'boolean') {
-        return { success: false, error: 'Sound must be true or false' };
+      if (reminderSettings.sound !== undefined) {
+        if (typeof reminderSettings.sound !== "boolean") {
+          return { success: false, error: "Sound must be true or false" };
+        }
+        settingsToUpdate.soundEnabled = reminderSettings.sound;
       }
-      settingsToUpdate.soundEnabled = reminderSettings.sound;
-    }
 
-    if (reminderSettings.vibration !== undefined) {
-      if (typeof reminderSettings.vibration !== 'boolean') {
-        return { success: false, error: 'Vibration must be true or false' };
+      if (reminderSettings.vibration !== undefined) {
+        if (typeof reminderSettings.vibration !== "boolean") {
+          return { success: false, error: "Vibration must be true or false" };
+        }
+        settingsToUpdate.vibrationEnabled = reminderSettings.vibration;
       }
-      settingsToUpdate.vibrationEnabled = reminderSettings.vibration;
-    }
 
-    if (reminderSettings.wakeHours !== undefined) {
-      const { start, end } = reminderSettings.wakeHours;
-      if (typeof start !== 'number' || typeof end !== 'number' ||
-          start < 0 || start > 23 || end < 1 || end > 24) {
-        return { success: false, error: 'Invalid wake hours' };
+      if (reminderSettings.wakeHours !== undefined) {
+        const { start, end } = reminderSettings.wakeHours;
+        if (
+          typeof start !== "number" ||
+          typeof end !== "number" ||
+          start < 0 ||
+          start > 23 ||
+          end < 1 ||
+          end > 24
+        ) {
+          return { success: false, error: "Invalid wake hours" };
+        }
+        settingsToUpdate.wakeHours = { start, end };
       }
-      settingsToUpdate.wakeHours = { start, end };
-    }
 
-    try {
-      await actions.updateSettings(settingsToUpdate);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to update reminder settings' };
-    }
-  }, [actions]);
+      try {
+        await actions.updateSettings(settingsToUpdate);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: "Failed to update reminder settings" };
+      }
+    },
+    [actions]
+  );
 
   // Computed values
   const todayLogs = useMemo((): WaterLogEntry[] => {
@@ -222,7 +265,7 @@ export const useWater = () => {
   }, [state.today.logs]);
 
   const quickAddOptions = useMemo(() => {
-    return QUICK_ADD_AMOUNTS.map(amount => ({
+    return QUICK_ADD_AMOUNTS.map((amount) => ({
       amount,
       label: `${amount}ml`,
       disabled: state.today.intake + amount > AMOUNT_LIMITS.DAILY_MAX,
@@ -230,8 +273,14 @@ export const useWater = () => {
   }, [state.today.intake]);
 
   const stats = useMemo(() => {
-    const progressPercentage = calculateGoalPercentage(state.today.intake, state.settings.dailyTarget);
-    const goalCompleted = isGoalCompleted(state.today.intake, state.settings.dailyTarget);
+    const progressPercentage = calculateGoalPercentage(
+      state.today.intake,
+      state.settings.dailyTarget
+    );
+    const goalCompleted = isGoalCompleted(
+      state.today.intake,
+      state.settings.dailyTarget
+    );
 
     return {
       progress: progressPercentage,
@@ -243,7 +292,12 @@ export const useWater = () => {
       logsCount: todayLogs.length,
       quickAddOptions,
     };
-  }, [state.today.intake, state.settings.dailyTarget, todayLogs.length, quickAddOptions]);
+  }, [
+    state.today.intake,
+    state.settings.dailyTarget,
+    todayLogs.length,
+    quickAddOptions,
+  ]);
 
   return {
     // State
@@ -255,6 +309,11 @@ export const useWater = () => {
     todayLogsCount: context.todayLogsCount,
     remainingAmount: context.remainingAmount,
 
+    // Notification state
+    notificationsEnabled: context.notificationsEnabled,
+    notificationPermissionStatus: context.notificationPermissionStatus,
+    notificationError: context.notificationError,
+
     // Computed values from this hook
     todayLogs,
     stats,
@@ -265,10 +324,17 @@ export const useWater = () => {
     addCustomAmount,
     removeTodayLog,
     updateDailyTarget,
-    updateReminderSettings,
+    updateReminderSettings: context.updateReminderSettings,
     updateSettings: actions.updateSettings,
     resetDaily: actions.resetDaily,
     clearError: actions.clearError,
+
+    // Notification actions
+    initializeNotifications: context.initializeNotifications,
+    scheduleReminder: context.scheduleReminder,
+    cancelReminders: context.cancelReminders,
+    showTestNotification: context.showTestNotification,
+    requestNotificationPermissions: context.requestNotificationPermissions,
   };
 };
 
@@ -287,8 +353,8 @@ export const useWaterStats = () => {
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay()); // Start of week
 
-    const weekHistory = state.history.filter(entry =>
-      new Date(entry.date) >= weekStart
+    const weekHistory = state.history.filter(
+      (entry) => new Date(entry.date) >= weekStart
     );
 
     if (weekHistory.length === 0) {
@@ -301,8 +367,11 @@ export const useWaterStats = () => {
       };
     }
 
-    const total = weekHistory.reduce((sum, entry) => sum + entry.totalIntake, 0);
-    const daysCompleted = weekHistory.filter(entry => entry.completed).length;
+    const total = weekHistory.reduce(
+      (sum, entry) => sum + entry.totalIntake,
+      0
+    );
+    const daysCompleted = weekHistory.filter((entry) => entry.completed).length;
 
     return {
       average: Math.round(total / weekHistory.length),
@@ -317,8 +386,8 @@ export const useWaterStats = () => {
     const today = new Date();
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const monthHistory = state.history.filter(entry =>
-      new Date(entry.date) >= monthStart
+    const monthHistory = state.history.filter(
+      (entry) => new Date(entry.date) >= monthStart
     );
 
     if (monthHistory.length === 0) {
@@ -331,8 +400,13 @@ export const useWaterStats = () => {
       };
     }
 
-    const total = monthHistory.reduce((sum, entry) => sum + entry.totalIntake, 0);
-    const daysCompleted = monthHistory.filter(entry => entry.completed).length;
+    const total = monthHistory.reduce(
+      (sum, entry) => sum + entry.totalIntake,
+      0
+    );
+    const daysCompleted = monthHistory.filter(
+      (entry) => entry.completed
+    ).length;
 
     return {
       average: Math.round(total / monthHistory.length),

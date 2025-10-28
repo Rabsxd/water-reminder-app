@@ -35,6 +35,27 @@ export interface HistoryEntry {
 }
 
 /**
+ * Wake hours configuration interface
+ * @interface WakeHours
+ */
+export interface WakeHours {
+  start: number; // hour (0-23)
+  end: number; // hour (1-24)
+}
+
+/**
+ * Notification settings interface
+ * @interface NotificationSettings
+ */
+export interface NotificationSettings {
+  enabled: boolean;
+  interval: number; // minutes
+  sound: boolean;
+  vibration: boolean;
+  wakeHours: WakeHours;
+}
+
+/**
  * User settings interface
  * @interface UserSettings
  */
@@ -44,10 +65,7 @@ export interface UserSettings {
   reminderEnabled: boolean;
   soundEnabled: boolean;
   vibrationEnabled: boolean;
-  wakeHours: {
-    start: number; // hour (0-23)
-    end: number; // hour (1-24)
-  };
+  wakeHours: WakeHours;
 }
 
 /**
