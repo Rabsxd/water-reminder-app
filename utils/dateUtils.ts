@@ -38,6 +38,33 @@ export const formatDateForDisplay = (date: Date): string => {
 };
 
 /**
+ * Format date string to readable format (Indonesian)
+ * @param dateString - ISO date string
+ * @returns Formatted date string
+ *
+ * @example
+ * formatDate('2025-01-15') // '15 Januari 2025'
+ */
+export const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) {
+    return 'Hari Ini';
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return 'Kemarin';
+  } else {
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+    });
+  }
+};
+
+/**
  * Formats a date to day name (e.g., "Monday")
  * @param {Date} date - Date object to format
  * @returns {string} Day name
