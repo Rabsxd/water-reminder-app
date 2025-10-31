@@ -7,6 +7,7 @@ import React from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 
 import { Card } from "../../components/common/Card";
+import { ErrorBoundary } from "../../components/common/ErrorBoundary";
 import { Header } from "../../components/common/Header";
 import { ProgressCircle } from "../../components/home/ProgressCircle";
 import { QuickAddButtons } from "../../components/home/QuickAddButtons";
@@ -181,19 +182,25 @@ const HomeScreen = React.memo(function HomeScreen() {
   };
 
   return (
-    <FlatList
-      style={styles.container}
-      data={listData}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      getItemLayout={getItemLayout}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={10}
-      windowSize={5}
-      initialNumToRender={3}
-    />
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('HomeScreen error:', error, errorInfo);
+      }}
+    >
+      <FlatList
+        style={styles.container}
+        data={listData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        getItemLayout={getItemLayout}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        initialNumToRender={3}
+      />
+    </ErrorBoundary>
   );
 });
 

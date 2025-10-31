@@ -8,6 +8,7 @@ import { FlatList, StyleSheet } from 'react-native';
 
 import { useWaterStats } from '../../hooks/useWater';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../utils/constants';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
 import { Header } from '../../components/common/Header';
 import { StreakCard } from '../../components/stats/StreakCard';
 import { WeeklyChart } from '../../components/stats/WeeklyChart';
@@ -134,19 +135,25 @@ const StatsScreen = React.memo(function StatsScreen() {
   };
 
   return (
-    <FlatList
-      style={styles.container}
-      data={listData}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      getItemLayout={getItemLayout}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={10}
-      windowSize={5}
-      initialNumToRender={3}
-    />
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('StatsScreen error:', error, errorInfo);
+      }}
+    >
+      <FlatList
+        style={styles.container}
+        data={listData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        getItemLayout={getItemLayout}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        initialNumToRender={3}
+      />
+    </ErrorBoundary>
   );
 });
 
