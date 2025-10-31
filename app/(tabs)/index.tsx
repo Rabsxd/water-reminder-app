@@ -23,7 +23,7 @@ import {
  * Home screen component
  * @returns {JSX.Element} Home screen with water tracking interface
  */
-export default function HomeScreen() {
+const HomeScreen = React.memo(function HomeScreen() {
   const {
     state,
     stats,
@@ -195,7 +195,9 @@ export default function HomeScreen() {
       initialNumToRender={3}
     />
   );
-}
+});
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {

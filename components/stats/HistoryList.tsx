@@ -3,13 +3,14 @@
  * Displays historical water intake data with optimized FlatList
  */
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  FlatList,
+  ListRenderItem,
 } from 'react-native';
 
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
@@ -41,7 +42,7 @@ const HistoryEntryItem: React.FC<{
   item: HistoryEntry;
   showDeleteButton?: boolean;
   onDelete?: (date: string) => void;
-}> = ({ item, showDeleteButton = false, onDelete }) => {
+}> = React.memo(({ item, showDeleteButton = false, onDelete }) => {
   /**
    * Format date for display
    * @returns {string} Formatted date string
@@ -153,7 +154,7 @@ const HistoryEntryItem: React.FC<{
       )}
     </View>
   );
-};
+});
 
 /**
  * History List component with optimized FlatList
@@ -167,7 +168,7 @@ const HistoryEntryItem: React.FC<{
  *   showDeleteButtons={true}
  * />
  */
-export const HistoryList: React.FC<HistoryListProps> = ({
+export const HistoryList: React.FC<HistoryListProps> = React.memo(({
   style,
   maxItems = 50,
   showDeleteButtons = false,
@@ -177,10 +178,10 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   const { history } = useWaterStats();
 
   /**
-   * Filter history data based on date filter
+   * Filter history data based on date filter with memoization
    * @returns {HistoryEntry[]} Filtered history data
    */
-  const getFilteredHistory = (): HistoryEntry[] => {
+  const filteredData = useMemo((): HistoryEntry[] => {
     if (!history || history.length === 0) {
       return [];
     }
@@ -203,25 +204,55 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       .filter(item => new Date(item.date) >= cutoffDate)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, maxItems);
-  };
+  }, [history, dateFilter, maxItems]);
 
-  
   /**
-   * Handle delete action with confirmation
+   * Handle delete action with confirmation - memoized
    * @param {string} date - Date of entry to delete
    */
-  const handleDelete = async (date: string) => {
+  const handleDelete = useCallback(async (date: string) => {
     if (onDeleteItem) {
       onDeleteItem(date);
     }
-  };
+  }, [onDeleteItem]);
 
-  
   /**
-   * Render empty state when no history
+   * Render item for FlatList - memoized
+   * @param {Object} param - Render item parameters
+   * @returns {JSX.Element} History entry item
+   */
+  const renderItem = useCallback<ListRenderItem<HistoryEntry>>(({ item, index }) => (
+    <HistoryEntryItem
+      item={item}
+      showDeleteButton={showDeleteButtons}
+      onDelete={handleDelete}
+    />
+  ), [showDeleteButtons, handleDelete]);
+
+  /**
+   * Key extractor for FlatList - memoized
+   * @param {HistoryEntry} item - History entry
+   * @returns {string} Unique key
+   */
+  const keyExtractor = useCallback((item: HistoryEntry) => item.date, []);
+
+  /**
+   * Get item layout for FlatList optimization
+   * @param {Array} data - Data array
+   * @param {number} index - Item index
+   * @returns {Object} Item layout
+   */
+  const getItemLayout = useCallback((data: any, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  }), []);
+
+  /**
+   * Render empty state when no history - memoized
    * @returns {JSX.Element} Empty state component
    */
-  const renderEmptyState = () => (
+  const renderEmptyState = useCallback(() => (
     <View style={styles.emptyState}>
       <Text style={styles.emptyStateText}>No history available</Text>
       <Text style={styles.emptyStateSubtext}>
@@ -231,14 +262,13 @@ export const HistoryList: React.FC<HistoryListProps> = ({
         }
       </Text>
     </View>
-  );
+  ), [dateFilter]);
 
   /**
-   * Render list header with filter info
+   * Render list header with filter info - memoized
    * @returns {JSX.Element} List header
    */
-  const renderHeader = () => {
-    const filteredData = getFilteredHistory();
+  const renderHeader = useCallback(() => {
     if (filteredData.length === 0) return null;
 
     return (
@@ -253,35 +283,36 @@ export const HistoryList: React.FC<HistoryListProps> = ({
         </Text>
       </View>
     );
-  };
-
-  const filteredData = getFilteredHistory();
+  }, [filteredData.length, dateFilter]);
 
   return (
     <View style={[styles.container, style]}>
       {renderHeader()}
 
-      {filteredData.length === 0 ? (
-        renderEmptyState()
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={styles.list}
-          nestedScrollEnabled={false}
-        >
-          {filteredData.map((item) => (
-            <HistoryEntryItem
-              key={item.date}
-              item={item}
-              showDeleteButton={showDeleteButtons}
-              onDelete={handleDelete}
-            />
-          ))}
-        </ScrollView>
-      )}
+      <FlatList
+        data={filteredData}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
+        // Critical FlatList optimizations
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        initialNumToRender={15}
+        // Performance settings
+        showsVerticalScrollIndicator={false}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        // Empty state
+        ListEmptyComponent={renderEmptyState}
+        // Additional optimizations
+        decreasingReturnLengths={true}
+        updateCellsBatchingPeriod={50}
+        keyboardShouldPersistTaps="handled"
+      />
     </View>
   );
-};
+});
 
 // Constants for optimization
 const ITEM_HEIGHT = 100;
@@ -296,6 +327,10 @@ const styles = StyleSheet.create({
 
   list: {
     flex: 1,
+  },
+
+  listContent: {
+    flexGrow: 1,
   },
 
   headerContainer: {

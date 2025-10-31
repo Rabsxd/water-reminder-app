@@ -168,8 +168,35 @@ export class StorageService {
         return { success: true, data: [] };
       }
 
-      const history = JSON.parse(JSON.parse(data));
-      return { success: true, data: Array.isArray(history) ? history : [] };
+      const history = JSON.parse(data);
+
+      if (!Array.isArray(history)) {
+        return { success: true, data: [] };
+      }
+
+      // Remove duplicate entries (keep the latest one for each date)
+      const uniqueHistory = history.reduce((acc: HistoryEntry[], entry) => {
+        // Validate entry structure first
+        if (!entry || typeof entry !== 'object' || !entry.date) {
+          return acc; // Skip invalid entries
+        }
+
+        const existingIndex = acc.findIndex(item => item.date === entry.date);
+        if (existingIndex === -1) {
+          acc.push(entry);
+        } else {
+          // Keep the entry with higher intake (more recent data)
+          if (entry.totalIntake > acc[existingIndex].totalIntake) {
+            acc[existingIndex] = entry;
+          }
+        }
+        return acc;
+      }, []);
+
+      // Sort by date (newest first)
+      uniqueHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      return { success: true, data: uniqueHistory };
     } catch (error) {
       console.error("Failed to load history:", error);
       return { success: false, error: "Failed to load history" };

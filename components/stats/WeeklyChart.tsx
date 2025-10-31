@@ -71,7 +71,7 @@ interface TouchHandlers {
  *   showTargetLine={true}
  * />
  */
-export const WeeklyChart: React.FC<WeeklyChartProps> = ({
+export const WeeklyChart: React.FC<WeeklyChartProps> = React.memo(({
   style,
   height = 200,
   showTargetLine = true,
@@ -407,7 +407,7 @@ export const WeeklyChart: React.FC<WeeklyChartProps> = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -98,7 +98,7 @@ const LogEntryItem: React.FC<{
  *   onDeleteItem={handleDelete}
  * />
  */
-export const TodayLogList: React.FC<TodayLogListProps> = ({
+export const TodayLogList: React.FC<TodayLogListProps> = React.memo(({
   style,
   maxItems = 10,
   showDeleteButtons = true,
@@ -185,7 +185,7 @@ export const TodayLogList: React.FC<TodayLogListProps> = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

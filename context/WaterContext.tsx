@@ -70,7 +70,7 @@ interface WaterProviderProps {
  *   <App />
  * </WaterProvider>
  */
-export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
+export const WaterProvider: React.FC<WaterProviderProps> = React.memo(({ children }) => {
   const [state, dispatch] = useReducer(waterReducer, createInitialState());
 
   // Initialize notifications hook
@@ -519,7 +519,7 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
       {children}
     </WaterContext.Provider>
   );
-};
+});
 
 /**
  * Hook to use water context

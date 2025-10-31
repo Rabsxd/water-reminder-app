@@ -19,7 +19,7 @@ import { DataFilter, FilterOption } from '../../components/stats/DataFilter';
  * Statistics screen component
  * @returns {JSX.Element} Statistics screen
  */
-export default function StatsScreen() {
+const StatsScreen = React.memo(function StatsScreen() {
   const { weeklyStats, monthlyStats, currentStreak, history } = useWaterStats();
 
   // State for chart view mode and data filter
@@ -148,7 +148,9 @@ export default function StatsScreen() {
       initialNumToRender={3}
     />
   );
-}
+});
+
+export default StatsScreen;
 
 const styles = StyleSheet.create({
   container: {
