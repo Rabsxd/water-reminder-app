@@ -5,14 +5,13 @@
 
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  PanResponder,
-  PanResponderInstance,
   Animated,
+  PanResponder,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../../utils/constants';
+import { BORDER_RADIUS, COLORS, SPACING, TYPOGRAPHY } from '../../utils/constants';
 import { formatDate } from '../../utils/dateUtils';
 
 // Helper function for interpolation - using deprecated API for compatibility
@@ -30,11 +29,11 @@ interface SwipeableHistoryItemProps {
     totalIntake: number;
     target: number;
     percentage: number;
-    logs?: Array<{
+    logs?: {
       id: string;
       timestamp: string;
       amount: number;
-    }>;
+    }[];
   };
   /** Edit action handler */
   onEdit?: (item: any) => void;

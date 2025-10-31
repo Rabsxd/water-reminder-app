@@ -103,7 +103,7 @@ export const useWater = () => {
       try {
         await actions.addDrink(amount);
         return { success: true };
-      } catch (error) {
+      } catch {
         return { success: false, error: "Failed to add water amount" };
       }
     },
@@ -133,7 +133,7 @@ export const useWater = () => {
       try {
         await actions.removeDrink(logId);
         return { success: true };
-      } catch (error) {
+      } catch {
         return { success: false, error: "Failed to remove log entry" };
       }
     },
@@ -168,7 +168,7 @@ export const useWater = () => {
       try {
         await actions.updateSettings({ dailyTarget: target });
         return { success: true };
-      } catch (error) {
+      } catch {
         return { success: false, error: "Failed to update daily target" };
       }
     },
@@ -252,7 +252,7 @@ export const useWater = () => {
       try {
         await actions.updateSettings(settingsToUpdate);
         return { success: true };
-      } catch (error) {
+      } catch {
         return { success: false, error: "Failed to update reminder settings" };
       }
     },

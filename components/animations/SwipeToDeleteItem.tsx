@@ -9,7 +9,6 @@ import {
   Text,
   StyleSheet,
   PanResponder,
-  PanResponderInstance,
   Animated,
 } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';

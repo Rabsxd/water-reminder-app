@@ -12,9 +12,8 @@ import {
   ScrollView,
 } from 'react-native';
 
-import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS, WAKE_HOURS_LIMITS } from '../../utils/constants';
 import { useWater } from '../../hooks/useWater';
-import { WAKE_HOURS_DEFAULT, WAKE_HOURS_LIMITS } from '../../utils/constants';
 
 /**
  * Wake Hours Picker component props

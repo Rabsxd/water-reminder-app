@@ -7,10 +7,9 @@ import React from 'react';
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
   StyleSheet,
-  ListRenderItem,
+  ScrollView,
 } from 'react-native';
 
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
@@ -206,17 +205,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       .slice(0, maxItems);
   };
 
-  /**
-   * Get item layout for FlatList optimization
-   * @param {Object} params - Layout params
-   * @returns {Object} Item layout info
-   */
-  const getItemLayout = (data: any, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: ITEM_HEIGHT * index,
-    index,
-  });
-
+  
   /**
    * Handle delete action with confirmation
    * @param {string} date - Date of entry to delete
@@ -227,21 +216,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     }
   };
 
-  /**
-   * Render item for FlatList
-   * @param {Object} params - Render item params
-   * @returns {JSX.Element} History entry item
-   */
-  const renderItem: ListRenderItem<HistoryEntry> = ({ item, index }) => {
-    return (
-      <HistoryEntryItem
-        item={item}
-        showDeleteButton={showDeleteButtons}
-        onDelete={handleDelete}
-      />
-    );
-  };
-
+  
   /**
    * Render empty state when no history
    * @returns {JSX.Element} Empty state component
@@ -289,18 +264,20 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       {filteredData.length === 0 ? (
         renderEmptyState()
       ) : (
-        <FlatList
-          data={filteredData}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.date}
-          getItemLayout={getItemLayout}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-          initialNumToRender={10}
+        <ScrollView
           showsVerticalScrollIndicator={false}
           style={styles.list}
-        />
+          nestedScrollEnabled={false}
+        >
+          {filteredData.map((item) => (
+            <HistoryEntryItem
+              key={item.date}
+              item={item}
+              showDeleteButton={showDeleteButtons}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ScrollView>
       )}
     </View>
   );

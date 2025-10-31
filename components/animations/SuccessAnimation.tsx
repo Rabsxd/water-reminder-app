@@ -3,22 +3,21 @@
  * Provides animated feedback for achievements and goal completion
  */
 
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withDelay,
-  withSequence,
-  withTiming,
-  interpolate,
   Easing,
   runOnJS,
-} from 'react-native-reanimated';
-import { COLORS, SPACING } from '../../utils/constants';
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { COLORS, SPACING } from "../../utils/constants";
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 /**
  * Success animation component props
@@ -27,7 +26,7 @@ interface SuccessAnimationProps {
   /** Whether to show the animation */
   visible: boolean;
   /** Type of success animation */
-  type?: 'goal' | 'streak' | 'achievement';
+  type?: "goal" | "streak" | "achievement";
   /** Callback when animation completes */
   onAnimationComplete?: () => void;
   /** Custom message to display */
@@ -51,7 +50,7 @@ interface SuccessAnimationProps {
  */
 export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
   visible,
-  type = 'goal',
+  type = "goal",
   onAnimationComplete,
   message,
   duration = 2500,
@@ -71,32 +70,32 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
   // Get animation config based on type
   const getAnimationConfig = () => {
     switch (type) {
-      case 'goal':
+      case "goal":
         return {
-          icon: '🎯',
+          icon: "🎯",
           color: COLORS.SUCCESS,
-          defaultMessage: 'Target Harian Tercapai!',
+          defaultMessage: "Target Harian Tercapai!",
           sparkles: true,
         };
-      case 'streak':
+      case "streak":
         return {
-          icon: '🔥',
+          icon: "🔥",
           color: COLORS.WARNING,
-          defaultMessage: 'Streak Bertambah!',
+          defaultMessage: "Streak Bertambah!",
           sparkles: true,
         };
-      case 'achievement':
+      case "achievement":
         return {
-          icon: '🏆',
+          icon: "🏆",
           color: COLORS.PRIMARY,
-          defaultMessage: 'Pencapaian Luar Biasa!',
+          defaultMessage: "Pencapaian Luar Biasa!",
           sparkles: true,
         };
       default:
         return {
-          icon: '✅',
+          icon: "✅",
           color: COLORS.SUCCESS,
-          defaultMessage: 'Berhasil!',
+          defaultMessage: "Berhasil!",
           sparkles: false,
         };
     }
@@ -116,122 +115,133 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
       });
 
       // Main icon entrance
-      scale.value = withDelay(300, withSpring(1, {
-        damping: 15,
-        stiffness: 100,
-      }));
-
-      rotation.value = withDelay(300, withSequence(
-        withTiming(360, {
-          duration: 800,
-          easing: Easing.out(Easing.quad),
-        }),
-        withTiming(0, {
-          duration: 200,
-          easing: Easing.in(Easing.quad),
+      scale.value = withDelay(
+        300,
+        withSpring(1, {
+          damping: 15,
+          stiffness: 100,
         })
-      ));
+      );
+
+      rotation.value = withDelay(
+        300,
+        withSequence(
+          withTiming(360, {
+            duration: 800,
+            easing: Easing.out(Easing.quad),
+          }),
+          withTiming(0, {
+            duration: 200,
+            easing: Easing.in(Easing.quad),
+          })
+        )
+      );
 
       // Sparkles effect
       if (config.sparkles) {
-        sparkleOpacity.value = withDelay(500, withSequence(
-          withTiming(1, {
-            duration: 200,
-          }),
-          withTiming(0, {
-            duration: 800,
-            easing: Easing.out(Easing.quad),
-          })
-        ));
+        sparkleOpacity.value = withDelay(
+          500,
+          withSequence(
+            withTiming(1, {
+              duration: 200,
+            }),
+            withTiming(0, {
+              duration: 800,
+              easing: Easing.out(Easing.quad),
+            })
+          )
+        );
       }
 
       // Checkmark animation for goal completion
-      if (type === 'goal') {
-        checkmarkProgress.value = withDelay(600, withTiming(1, {
-          duration: 600,
-          easing: Easing.out(Easing.quad),
-        }));
+      if (type === "goal") {
+        checkmarkProgress.value = withDelay(
+          600,
+          withTiming(1, {
+            duration: 600,
+            easing: Easing.out(Easing.quad),
+          })
+        );
       }
 
       // Text appearance
-      textOpacity.value = withDelay(800, withTiming(1, {
-        duration: 500,
-        easing: Easing.out(Easing.quad),
-      }));
+      textOpacity.value = withDelay(
+        800,
+        withTiming(1, {
+          duration: 500,
+          easing: Easing.out(Easing.quad),
+        })
+      );
 
-      textY.value = withDelay(800, withSpring(0, {
-        damping: 15,
-        stiffness: 100,
-      }));
+      textY.value = withDelay(
+        800,
+        withSpring(0, {
+          damping: 15,
+          stiffness: 100,
+        })
+      );
 
       // Confetti effect
       if (config.sparkles) {
-        confettiY.value = withDelay(1000, withSpring(height + 100, {
-          damping: 20,
-          stiffness: 80,
-        }));
+        confettiY.value = withDelay(
+          1000,
+          withSpring(height + 100, {
+            damping: 20,
+            stiffness: 80,
+          })
+        );
       }
 
       // Complete animation
       setTimeout(() => {
-        overlayOpacity.value = withTiming(0, {
-          duration: 300,
-          easing: Easing.in(Easing.quad),
-        }, () => {
-          runOnJS(() => {
-            setIsAnimating(false);
-            onAnimationComplete?.();
-          })();
-        });
+        overlayOpacity.value = withTiming(
+          0,
+          {
+            duration: 300,
+            easing: Easing.in(Easing.quad),
+          },
+          () => {
+            runOnJS(() => {
+              setIsAnimating(false);
+              onAnimationComplete?.();
+            })();
+          }
+        );
       }, duration);
     }
   }, [visible, duration, onAnimationComplete]);
+
+  // Animation styles - always call hooks before early returns
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+  }));
+
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
+  }));
+
+  const sparkleStyle = useAnimatedStyle(() => ({
+    opacity: sparkleOpacity.value,
+  }));
+
+  const textStyle = useAnimatedStyle(() => ({
+    opacity: textOpacity.value,
+    transform: [{ translateY: textY.value }],
+  }));
+
+  const confettiStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: confettiY.value }],
+  }));
+
+  const checkmarkStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: checkmarkProgress.value }],
+    opacity: checkmarkProgress.value,
+  }));
 
   // Don't render if not animating
   if (!isAnimating) {
     return null;
   }
-
-  // Overlay animation style
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-  }));
-
-  // Main icon animation style
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` },
-    ],
-  }));
-
-  // Sparkle animation style
-  const sparkleStyle = useAnimatedStyle(() => ({
-    opacity: sparkleOpacity.value,
-  }));
-
-  // Text animation style
-  const textStyle = useAnimatedStyle(() => ({
-    opacity: textOpacity.value,
-    transform: [
-      { translateY: textY.value },
-    ],
-  }));
-
-  // Confetti animation style
-  const confettiStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: confettiY.value },
-    ],
-  }));
-
-  // Checkmark animation style
-  const checkmarkStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: checkmarkProgress.value },
-    ],
-    opacity: checkmarkProgress.value,
-  }));
 
   return (
     <Animated.View style={[styles.overlay, overlayStyle]}>
@@ -252,9 +262,7 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
                     COLORS.SECONDARY,
                   ][index % 5],
                   left: `${15 + index * 15}%`,
-                  transform: [
-                    { rotate: `${index * 60}deg` },
-                  ],
+                  transform: [{ rotate: `${index * 60}deg` }],
                 },
               ]}
             />
@@ -265,7 +273,7 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
       {/* Main Success Icon */}
       <Animated.View style={[styles.iconContainer, iconStyle]}>
         <View style={[styles.iconCircle, { backgroundColor: config.color }]}>
-          {type === 'goal' ? (
+          {type === "goal" ? (
             <Animated.View style={checkmarkStyle}>
               <View style={styles.checkmark}>
                 <View style={styles.checkmarkStem} />
@@ -273,7 +281,9 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
               </View>
             </Animated.View>
           ) : (
-            <Animated.Text style={styles.emojiIcon}>{config.icon}</Animated.Text>
+            <Animated.Text style={styles.emojiIcon}>
+              {config.icon}
+            </Animated.Text>
           )}
         </View>
 
@@ -311,19 +321,19 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1000,
   },
 
   iconContainer: {
-    position: 'relative',
+    position: "relative",
     marginBottom: SPACING.LG,
   },
 
@@ -331,8 +341,8 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: COLORS.SHADOW_DARK,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
@@ -347,11 +357,11 @@ const styles = StyleSheet.create({
   checkmark: {
     width: 60,
     height: 30,
-    position: 'relative',
+    position: "relative",
   },
 
   checkmarkStem: {
-    position: 'absolute',
+    position: "absolute",
     width: 4,
     height: 30,
     backgroundColor: COLORS.TEXT_WHITE,
@@ -361,27 +371,27 @@ const styles = StyleSheet.create({
   },
 
   checkmarkKick: {
-    position: 'absolute',
+    position: "absolute",
     width: 30,
     height: 4,
     backgroundColor: COLORS.TEXT_WHITE,
     left: 2,
     bottom: 2,
     borderRadius: 2,
-    transform: [{ rotate: '-45deg' }],
-    transformOrigin: 'left center',
+    transform: [{ rotate: "-45deg" }],
+    transformOrigin: "left center",
   },
 
   sparklesContainer: {
-    position: 'absolute',
+    position: "absolute",
     width: 180,
     height: 180,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   sparkle: {
-    position: 'absolute',
+    position: "absolute",
     width: 4,
     height: 4,
     backgroundColor: COLORS.WARNING,
@@ -389,27 +399,27 @@ const styles = StyleSheet.create({
   },
 
   textContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: SPACING.LG,
   },
 
   successText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.TEXT_WHITE,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: SPACING.SM,
   },
 
   subText: {
     fontSize: 16,
     color: COLORS.TEXT_WHITE,
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.9,
   },
 
   confettiContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -417,7 +427,7 @@ const styles = StyleSheet.create({
   },
 
   confettiPiece: {
-    position: 'absolute',
+    position: "absolute",
     width: 8,
     height: 8,
     borderRadius: 2,
@@ -470,9 +480,9 @@ export const QuickSuccess: React.FC<{
 
 const quickSuccessStyles = StyleSheet.create({
   quickSuccess: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
     transform: [{ translateX: -30 }, { translateY: -30 }],
   },
 
@@ -481,8 +491,8 @@ const quickSuccessStyles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: COLORS.SUCCESS,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -492,7 +502,7 @@ const quickSuccessStyles = StyleSheet.create({
 
   quickSuccessText: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.TEXT_WHITE,
   },
 });

@@ -12,10 +12,8 @@ import {
   ScrollView,
 } from 'react-native';
 
-import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS, REMINDER_INTERVALS, REMINDER_INTERVAL_LIMITS } from '../../utils/constants';
 import { useWater } from '../../hooks/useWater';
-import { REMINDER_INTERVALS, REMINDER_INTERVAL_LIMITS } from '../../utils/constants';
-import type { ButtonProps } from '../common/Button';
 
 /**
  * Reminder Settings component props

@@ -3,11 +3,16 @@
  * Handles all AsyncStorage operations with error handling and data validation
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { STORAGE_KEYS, DATA_RETENTION_DAYS } from '../utils/constants';
-import { formatDateToYYYYMMDD, getEndOfDay } from '../utils/dateUtils';
-import type { UserSettings, TodayData, HistoryEntry, WaterLogEntry, StorageData } from '../utils/types';
+import { DATA_RETENTION_DAYS, STORAGE_KEYS } from "../utils/constants";
+import { formatDateToYYYYMMDD } from "../utils/dateUtils";
+import type {
+  HistoryEntry,
+  StorageData,
+  TodayData,
+  UserSettings,
+} from "../utils/types";
 
 /**
  * Storage Service Class
@@ -22,14 +27,16 @@ export class StorageService {
    * @example
    * const result = await StorageService.saveSettings({ dailyTarget: 2500 });
    */
-  static async saveSettings(settings: UserSettings): Promise<{ success: boolean; error?: string }> {
+  static async saveSettings(
+    settings: UserSettings
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const dataToStore = JSON.stringify(JSON.stringify(settings));
       await AsyncStorage.setItem(STORAGE_KEYS.SETTINGS, dataToStore);
       return { success: true };
     } catch (error) {
-      console.error('Failed to save settings:', error);
-      return { success: false, error: 'Failed to save settings' };
+      console.error("Failed to save settings:", error);
+      return { success: false, error: "Failed to save settings" };
     }
   }
 
@@ -40,19 +47,23 @@ export class StorageService {
    * @example
    * const { data: settings } = await StorageService.loadSettings();
    */
-  static async loadSettings(): Promise<{ success: boolean; data?: UserSettings; error?: string }> {
+  static async loadSettings(): Promise<{
+    success: boolean;
+    data?: UserSettings;
+    error?: string;
+  }> {
     try {
       const data = await AsyncStorage.getItem(STORAGE_KEYS.SETTINGS);
 
       if (!data) {
-        return { success: false, error: 'No settings found' };
+        return { success: false, error: "No settings found" };
       }
 
       const settings = JSON.parse(JSON.parse(data));
       return { success: true, data: settings };
     } catch (error) {
-      console.error('Failed to load settings:', error);
-      return { success: false, error: 'Failed to load settings' };
+      console.error("Failed to load settings:", error);
+      return { success: false, error: "Failed to load settings" };
     }
   }
 
@@ -68,14 +79,16 @@ export class StorageService {
    *   logs: [...]
    * });
    */
-  static async saveTodayData(todayData: TodayData): Promise<{ success: boolean; error?: string }> {
+  static async saveTodayData(
+    todayData: TodayData
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const dataToStore = JSON.stringify(JSON.stringify(todayData));
       await AsyncStorage.setItem(STORAGE_KEYS.TODAY, dataToStore);
       return { success: true };
     } catch (error) {
-      console.error('Failed to save today data:', error);
-      return { success: false, error: 'Failed to save today data' };
+      console.error("Failed to save today data:", error);
+      return { success: false, error: "Failed to save today data" };
     }
   }
 
@@ -86,19 +99,23 @@ export class StorageService {
    * @example
    * const { data: todayData } = await StorageService.loadTodayData();
    */
-  static async loadTodayData(): Promise<{ success: boolean; data?: TodayData; error?: string }> {
+  static async loadTodayData(): Promise<{
+    success: boolean;
+    data?: TodayData;
+    error?: string;
+  }> {
     try {
       const data = await AsyncStorage.getItem(STORAGE_KEYS.TODAY);
 
       if (!data) {
-        return { success: false, error: 'No today data found' };
+        return { success: false, error: "No today data found" };
       }
 
       const todayData = JSON.parse(JSON.parse(data));
       return { success: true, data: todayData };
     } catch (error) {
-      console.error('Failed to load today data:', error);
-      return { success: false, error: 'Failed to load today data' };
+      console.error("Failed to load today data:", error);
+      return { success: false, error: "Failed to load today data" };
     }
   }
 
@@ -110,21 +127,25 @@ export class StorageService {
    * @example
    * const result = await StorageService.saveHistory(historyData);
    */
-  static async saveHistory(history: HistoryEntry[]): Promise<{ success: boolean; error?: string }> {
+  static async saveHistory(
+    history: HistoryEntry[]
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       // Apply 30-day retention policy
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - DATA_RETENTION_DAYS);
       const cutoffDateString = formatDateToYYYYMMDD(cutoffDate);
 
-      const filteredHistory = history.filter(entry => entry.date >= cutoffDateString);
+      const filteredHistory = history.filter(
+        (entry) => entry.date >= cutoffDateString
+      );
       const dataToStore = JSON.stringify(JSON.stringify(filteredHistory));
 
       await AsyncStorage.setItem(STORAGE_KEYS.HISTORY, dataToStore);
       return { success: true };
     } catch (error) {
-      console.error('Failed to save history:', error);
-      return { success: false, error: 'Failed to save history' };
+      console.error("Failed to save history:", error);
+      return { success: false, error: "Failed to save history" };
     }
   }
 
@@ -135,7 +156,11 @@ export class StorageService {
    * @example
    * const { data: history } = await StorageService.loadHistory();
    */
-  static async loadHistory(): Promise<{ success: boolean; data?: HistoryEntry[]; error?: string }> {
+  static async loadHistory(): Promise<{
+    success: boolean;
+    data?: HistoryEntry[];
+    error?: string;
+  }> {
     try {
       const data = await AsyncStorage.getItem(STORAGE_KEYS.HISTORY);
 
@@ -146,8 +171,8 @@ export class StorageService {
       const history = JSON.parse(JSON.parse(data));
       return { success: true, data: Array.isArray(history) ? history : [] };
     } catch (error) {
-      console.error('Failed to load history:', error);
-      return { success: false, error: 'Failed to load history' };
+      console.error("Failed to load history:", error);
+      return { success: false, error: "Failed to load history" };
     }
   }
 
@@ -164,25 +189,29 @@ export class StorageService {
    *   completed: true
    * });
    */
-  static async addHistoryEntry(entry: HistoryEntry): Promise<{ success: boolean; error?: string }> {
+  static async addHistoryEntry(
+    entry: HistoryEntry
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const { success, data: history = [] } = await this.loadHistory();
 
       if (!success) {
-        return { success: false, error: 'Failed to load existing history' };
+        return { success: false, error: "Failed to load existing history" };
       }
 
       // Remove existing entry for the same date if it exists
-      const updatedHistory = history.filter(item => item.date !== entry.date);
+      const updatedHistory = history.filter((item) => item.date !== entry.date);
       updatedHistory.push(entry);
 
       // Sort by date (newest first)
-      updatedHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      updatedHistory.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
 
       return await this.saveHistory(updatedHistory);
     } catch (error) {
-      console.error('Failed to add history entry:', error);
-      return { success: false, error: 'Failed to add history entry' };
+      console.error("Failed to add history entry:", error);
+      return { success: false, error: "Failed to add history entry" };
     }
   }
 
@@ -194,13 +223,15 @@ export class StorageService {
    * @example
    * const result = await StorageService.saveLastReminder(new Date().toISOString());
    */
-  static async saveLastReminder(timestamp: string): Promise<{ success: boolean; error?: string }> {
+  static async saveLastReminder(
+    timestamp: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.LAST_REMINDER, timestamp);
       return { success: true };
     } catch (error) {
-      console.error('Failed to save last reminder:', error);
-      return { success: false, error: 'Failed to save last reminder' };
+      console.error("Failed to save last reminder:", error);
+      return { success: false, error: "Failed to save last reminder" };
     }
   }
 
@@ -211,13 +242,17 @@ export class StorageService {
    * @example
    * const { data: timestamp } = await StorageService.loadLastReminder();
    */
-  static async loadLastReminder(): Promise<{ success: boolean; data?: string; error?: string }> {
+  static async loadLastReminder(): Promise<{
+    success: boolean;
+    data?: string;
+    error?: string;
+  }> {
     try {
       const timestamp = await AsyncStorage.getItem(STORAGE_KEYS.LAST_REMINDER);
       return { success: true, data: timestamp || undefined };
     } catch (error) {
-      console.error('Failed to load last reminder:', error);
-      return { success: false, error: 'Failed to load last reminder' };
+      console.error("Failed to load last reminder:", error);
+      return { success: false, error: "Failed to load last reminder" };
     }
   }
 
@@ -229,13 +264,15 @@ export class StorageService {
    * @example
    * const result = await StorageService.saveLastCheckDate('2025-01-15');
    */
-  static async saveLastCheckDate(date: string): Promise<{ success: boolean; error?: string }> {
+  static async saveLastCheckDate(
+    date: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.LAST_CHECK_DATE, date);
       return { success: true };
     } catch (error) {
-      console.error('Failed to save last check date:', error);
-      return { success: false, error: 'Failed to save last check date' };
+      console.error("Failed to save last check date:", error);
+      return { success: false, error: "Failed to save last check date" };
     }
   }
 
@@ -246,13 +283,17 @@ export class StorageService {
    * @example
    * const { data: date } = await StorageService.loadLastCheckDate();
    */
-  static async loadLastCheckDate(): Promise<{ success: boolean; data?: string; error?: string }> {
+  static async loadLastCheckDate(): Promise<{
+    success: boolean;
+    data?: string;
+    error?: string;
+  }> {
     try {
       const date = await AsyncStorage.getItem(STORAGE_KEYS.LAST_CHECK_DATE);
       return { success: true, data: date || undefined };
     } catch (error) {
-      console.error('Failed to load last check date:', error);
-      return { success: false, error: 'Failed to load last check date' };
+      console.error("Failed to load last check date:", error);
+      return { success: false, error: "Failed to load last check date" };
     }
   }
 
@@ -263,43 +304,61 @@ export class StorageService {
    * @example
    * const { data: allData } = await StorageService.loadAllData();
    */
-  static async loadAllData(): Promise<{ success: boolean; data?: StorageData; error?: string }> {
+  static async loadAllData(): Promise<{
+    success: boolean;
+    data?: StorageData;
+    error?: string;
+  }> {
     try {
-      const [settingsResult, todayResult, historyResult, lastReminderResult, lastCheckDateResult] =
-        await Promise.allSettled([
-          this.loadSettings(),
-          this.loadTodayData(),
-          this.loadHistory(),
-          this.loadLastReminder(),
-          this.loadLastCheckDate(),
-        ]);
+      const [
+        settingsResult,
+        todayResult,
+        historyResult,
+        lastReminderResult,
+        lastCheckDateResult,
+      ] = await Promise.allSettled([
+        this.loadSettings(),
+        this.loadTodayData(),
+        this.loadHistory(),
+        this.loadLastReminder(),
+        this.loadLastCheckDate(),
+      ]);
 
       const data: StorageData = {};
 
-      if (settingsResult.status === 'fulfilled' && settingsResult.value.success) {
+      if (
+        settingsResult.status === "fulfilled" &&
+        settingsResult.value.success
+      ) {
         data.settings = settingsResult.value.data;
       }
 
-      if (todayResult.status === 'fulfilled' && todayResult.value.success) {
+      if (todayResult.status === "fulfilled" && todayResult.value.success) {
         data.today = todayResult.value.data;
       }
 
-      if (historyResult.status === 'fulfilled' && historyResult.value.success) {
+      if (historyResult.status === "fulfilled" && historyResult.value.success) {
         data.history = historyResult.value.data;
       }
 
-      if (lastReminderResult.status === 'fulfilled' && lastReminderResult.value.success) {
+      if (
+        lastReminderResult.status === "fulfilled" &&
+        lastReminderResult.value.success
+      ) {
         data.lastReminder = lastReminderResult.value.data;
       }
 
-      if (lastCheckDateResult.status === 'fulfilled' && lastCheckDateResult.value.success) {
+      if (
+        lastCheckDateResult.status === "fulfilled" &&
+        lastCheckDateResult.value.success
+      ) {
         data.lastCheckDate = lastCheckDateResult.value.data;
       }
 
       return { success: true, data };
     } catch (error) {
-      console.error('Failed to load all data:', error);
-      return { success: false, error: 'Failed to load all data' };
+      console.error("Failed to load all data:", error);
+      return { success: false, error: "Failed to load all data" };
     }
   }
 
@@ -323,8 +382,8 @@ export class StorageService {
       await AsyncStorage.multiRemove(keys);
       return { success: true };
     } catch (error) {
-      console.error('Failed to clear all data:', error);
-      return { success: false, error: 'Failed to clear all data' };
+      console.error("Failed to clear all data:", error);
+      return { success: false, error: "Failed to clear all data" };
     }
   }
 
@@ -335,10 +394,14 @@ export class StorageService {
    * @example
    * const { data: stats } = await StorageService.getStorageStats();
    */
-  static async getStorageStats(): Promise<{ success: boolean; data?: { totalKeys: number; estimatedSize: string }; error?: string }> {
+  static async getStorageStats(): Promise<{
+    success: boolean;
+    data?: { totalKeys: number; estimatedSize: string };
+    error?: string;
+  }> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const appKeys = keys.filter(key =>
+      const appKeys = keys.filter((key) =>
         Object.values(STORAGE_KEYS).includes(key as any)
       );
 
@@ -351,11 +414,11 @@ export class StorageService {
       }
 
       const formatBytes = (bytes: number): string => {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) return "0 Bytes";
         const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const sizes = ["Bytes", "KB", "MB", "GB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
       };
 
       return {
@@ -366,8 +429,8 @@ export class StorageService {
         },
       };
     } catch (error) {
-      console.error('Failed to get storage stats:', error);
-      return { success: false, error: 'Failed to get storage statistics' };
+      console.error("Failed to get storage stats:", error);
+      return { success: false, error: "Failed to get storage statistics" };
     }
   }
 
@@ -378,7 +441,11 @@ export class StorageService {
    * @example
    * const { success, repaired, errors } = await StorageService.validateAndRepair();
    */
-  static async validateAndRepair(): Promise<{ success: boolean; repaired: number; errors: string[] }> {
+  static async validateAndRepair(): Promise<{
+    success: boolean;
+    repaired: number;
+    errors: string[];
+  }> {
     const errors: string[] = [];
     let repaired = 0;
 
@@ -387,8 +454,12 @@ export class StorageService {
       const settingsResult = await this.loadSettings();
       if (settingsResult.success && settingsResult.data) {
         const settings = settingsResult.data;
-        if (typeof settings.dailyTarget !== 'number' || settings.dailyTarget < 1000 || settings.dailyTarget > 4000) {
-          errors.push('Invalid daily target in settings');
+        if (
+          typeof settings.dailyTarget !== "number" ||
+          settings.dailyTarget < 1000 ||
+          settings.dailyTarget > 4000
+        ) {
+          errors.push("Invalid daily target in settings");
           // Repair would go here
         }
       }
@@ -397,8 +468,12 @@ export class StorageService {
       const todayResult = await this.loadTodayData();
       if (todayResult.success && todayResult.data) {
         const today = todayResult.data;
-        if (!today.date || typeof today.intake !== 'number' || !Array.isArray(today.logs)) {
-          errors.push('Invalid today data structure');
+        if (
+          !today.date ||
+          typeof today.intake !== "number" ||
+          !Array.isArray(today.logs)
+        ) {
+          errors.push("Invalid today data structure");
           // Repair would go here
         }
       }
@@ -408,10 +483,16 @@ export class StorageService {
       if (historyResult.success && historyResult.data) {
         const history = historyResult.data;
         for (const entry of history) {
-          if (!entry.date || typeof entry.totalIntake !== 'number' || typeof entry.target !== 'number') {
-            errors.push(`Invalid history entry for date: ${entry.date || 'unknown'}`);
+          if (
+            !entry.date ||
+            typeof entry.totalIntake !== "number" ||
+            typeof entry.target !== "number"
+          ) {
+            errors.push(
+              `Invalid history entry for date: ${entry.date || "unknown"}`
+            );
             // Remove invalid entry
-            const validHistory = history.filter(h => h !== entry);
+            const validHistory = history.filter((h) => h !== entry);
             await this.saveHistory(validHistory);
             repaired++;
           }
@@ -420,8 +501,12 @@ export class StorageService {
 
       return { success: true, repaired, errors };
     } catch (error) {
-      console.error('Failed to validate storage:', error);
-      return { success: false, repaired, errors: ['Validation failed due to error'] };
+      console.error("Failed to validate storage:", error);
+      return {
+        success: false,
+        repaired,
+        errors: ["Validation failed due to error"],
+      };
     }
   }
 }

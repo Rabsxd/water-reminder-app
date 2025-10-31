@@ -7,7 +7,7 @@ import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { useWater } from '../../hooks/useWater';
-import { COLORS, TYPOGRAPHY, SPACING } from '../../utils/constants';
+import { COLORS, SPACING } from '../../utils/constants';
 import { Header } from '../../components/common/Header';
 import { TargetSlider } from '../../components/settings/TargetSlider';
 import { ReminderSettings } from '../../components/settings/ReminderSettings';

@@ -3,7 +3,7 @@
  * Provides global state management for the Water Reminder app
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { waterReducer, createInitialState } from './waterReducer';
@@ -97,38 +97,45 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
   }, [state.isLoading, notifications.isInitialized]);
 
   /**
-   * Auto-schedule reminders after adding drinks
+   * Auto-schedule reminders after adding drinks - Debounced
    */
   useEffect(() => {
-    if (state.settings.reminderEnabled && state.today.intake < state.settings.dailyTarget) {
-      // Schedule next reminder after a short delay
+    if (state.settings.reminderEnabled && state.today.intake < state.settings.dailyTarget && !state.isLoading) {
+      // Schedule next reminder after a short delay - debounced
       const timer = setTimeout(() => {
         notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
-      }, 1000);
+      }, 2000); // Increased delay to prevent rapid calls
 
       return () => clearTimeout(timer);
     }
-  }, [state.today.intake]);
+  }, [state.today.intake, state.settings.reminderEnabled, state.settings.dailyTarget, notifications.scheduleReminder, state.isLoading]);
 
   /**
-   * Handle notification settings changes
+   * Handle notification settings changes - Debounced and with proper dependencies
    */
   useEffect(() => {
-    if (notifications.isInitialized && state.settings.reminderEnabled) {
-      // Reschedule reminders when settings change
-      if (state.today.intake < state.settings.dailyTarget) {
-        notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
+    if (notifications.isInitialized && !state.isLoading) {
+      if (state.settings.reminderEnabled && state.today.intake < state.settings.dailyTarget) {
+        // Reschedule reminders when settings change
+        const timer = setTimeout(() => {
+          notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+      } else if (!state.settings.reminderEnabled) {
+        // Cancel all reminders when disabled
+        notifications.cancelReminders();
       }
-    } else if (notifications.isInitialized && !state.settings.reminderEnabled) {
-      // Cancel all reminders when disabled
-      notifications.cancelReminders();
     }
   }, [
     state.settings.reminderEnabled,
     state.settings.reminderInterval,
-    state.settings.wakeHours,
-    state.settings.soundEnabled,
-    state.settings.vibrationEnabled,
+    notifications.isInitialized,
+    notifications.scheduleReminder,
+    notifications.cancelReminders,
+    state.isLoading,
+    state.today.intake,
+    state.settings.dailyTarget,
   ]);
 
   /**
@@ -442,30 +449,30 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
   /**
    * Clear current error
    */
-  const clearError = (): void => {
+  const clearError = useCallback((): void => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
   // Notification action functions
-  const initializeNotifications = async (): Promise<boolean> => {
+  const initializeNotifications = useCallback(async (): Promise<boolean> => {
     return await notifications.initialize();
-  };
+  }, [notifications]);
 
-  const scheduleReminder = async (): Promise<string | null> => {
+  const scheduleReminder = useCallback(async (): Promise<string | null> => {
     return await notifications.scheduleReminder(state.today.intake, state.settings.dailyTarget);
-  };
+  }, [notifications, state.today.intake, state.settings.dailyTarget]);
 
-  const cancelReminders = async (): Promise<number> => {
+  const cancelReminders = useCallback(async (): Promise<number> => {
     return await notifications.cancelReminders();
-  };
+  }, [notifications]);
 
-  const showTestNotification = async (): Promise<string | null> => {
+  const showTestNotification = useCallback(async (): Promise<string | null> => {
     return await notifications.showTestNotification();
-  };
+  }, [notifications]);
 
-  const requestNotificationPermissions = async (): Promise<boolean> => {
+  const requestNotificationPermissions = useCallback(async (): Promise<boolean> => {
     return await notifications.requestPermissions();
-  };
+  }, [notifications]);
 
   // Computed values
   const progress = state.settings.dailyTarget > 0

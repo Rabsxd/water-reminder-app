@@ -7,10 +7,9 @@ import React from 'react';
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
   StyleSheet,
-  ListRenderItem,
+  ScrollView,
 } from 'react-native';
 
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
@@ -133,21 +132,7 @@ export const TodayLogList: React.FC<TodayLogListProps> = ({
     }
   };
 
-  /**
-   * Render item for FlatList
-   * @param {Object} params - Render item params
-   * @returns {JSX.Element} Log entry item
-   */
-  const renderItem: ListRenderItem<WaterLogEntry> = ({ item, index }) => {
-    return (
-      <LogEntryItem
-        item={item}
-        showDeleteButton={showDeleteButtons}
-        onDelete={onDeleteItem || handleDelete}
-      />
-    );
-  };
-
+  
   /**
    * Render empty state when no logs
    * @returns {JSX.Element} Empty state component
@@ -182,19 +167,21 @@ export const TodayLogList: React.FC<TodayLogListProps> = ({
       {logs.length === 0 ? (
         renderEmptyState()
       ) : (
-        <FlatList
-          data={logs}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          ListFooterComponent={renderFooter}
+        <ScrollView
           showsVerticalScrollIndicator={false}
-          scrollEnabled={logs.length > 5}
           contentContainerStyle={styles.listContainer}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-          initialNumToRender={5}
-        />
+          nestedScrollEnabled={false}
+        >
+          {logs.map((item) => (
+            <LogEntryItem
+              key={item.id}
+              item={item}
+              showDeleteButton={showDeleteButtons}
+              onDelete={onDeleteItem || handleDelete}
+            />
+          ))}
+          {renderFooter()}
+        </ScrollView>
       )}
     </View>
   );

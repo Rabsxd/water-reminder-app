@@ -11,9 +11,8 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS, DAILY_TARGET_LIMITS } from '../../utils/constants';
 import { useWater } from '../../hooks/useWater';
-import { DAILY_TARGET_LIMITS } from '../../utils/constants';
 
 /**
  * Target Slider component props

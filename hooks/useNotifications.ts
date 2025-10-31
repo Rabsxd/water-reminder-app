@@ -3,19 +3,18 @@
  * Provides easy integration with notification service for React components
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  cancelAllWaterReminders,
+  cleanupNotificationService,
+  getNotificationPermissionStatus,
   initializeNotifications,
   requestNotificationPermissions,
-  scheduleWaterReminder,
-  cancelAllWaterReminders,
   scheduleRecurringReminders,
+  scheduleWaterReminder,
   showImmediateNotification,
-  getNotificationPermissionStatus,
-  cleanupNotificationService,
-} from '../services/notificationService';
-import type { NotificationSettings } from '../utils/types';
+} from "../services/notificationService";
+import type { NotificationSettings } from "../utils/types";
 
 /**
  * Hook state interface
@@ -34,9 +33,15 @@ interface NotificationState {
 interface UseNotificationsReturn extends NotificationState {
   initialize: () => Promise<boolean>;
   requestPermissions: () => Promise<boolean>;
-  scheduleReminder: (currentIntake: number, dailyTarget: number) => Promise<string | null>;
+  scheduleReminder: (
+    currentIntake: number,
+    dailyTarget: number
+  ) => Promise<string | null>;
   cancelReminders: () => Promise<number>;
-  scheduleRecurring: (currentIntake: number, dailyTarget: number) => Promise<string[]>;
+  scheduleRecurring: (
+    currentIntake: number,
+    dailyTarget: number
+  ) => Promise<string[]>;
   showTestNotification: () => Promise<string | null>;
   refreshPermissionStatus: () => Promise<void>;
   clearError: () => void;
@@ -52,11 +57,15 @@ export const useNotifications = (
 ): UseNotificationsReturn => {
   const [state, setState] = useState<NotificationState>({
     isEnabled: false,
-    permissionStatus: 'unknown',
+    permissionStatus: "unknown",
     isInitialized: false,
     lastReminderId: null,
     error: null,
   });
+
+  // Refs to prevent infinite loops
+  const lastScheduleCall = useRef<string>("");
+  const scheduleTimeoutRef = useRef<number | null>(null);
 
   /**
    * Initialize notification service
@@ -64,32 +73,33 @@ export const useNotifications = (
    */
   const initialize = useCallback(async (): Promise<boolean> => {
     try {
-      setState(prev => ({ ...prev, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
 
       const isInitialized = await initializeNotifications();
 
       if (isInitialized) {
         const permissionStatus = await getNotificationPermissionStatus();
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isInitialized: true,
-          isEnabled: permissionStatus === 'granted',
+          isEnabled: permissionStatus === "granted",
           permissionStatus,
         }));
       } else {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isInitialized: true,
           isEnabled: false,
-          permissionStatus: 'denied',
-          error: 'Failed to initialize notifications',
+          permissionStatus: "denied",
+          error: "Failed to initialize notifications",
         }));
       }
 
       return isInitialized;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setState((prev) => ({
         ...prev,
         isInitialized: true,
         isEnabled: false,
@@ -97,7 +107,7 @@ export const useNotifications = (
       }));
       return false;
     }
-  }, []);
+  }, []); // No dependencies - this function should be stable
 
   /**
    * Request notification permissions
@@ -105,12 +115,12 @@ export const useNotifications = (
    */
   const requestPermissions = useCallback(async (): Promise<boolean> => {
     try {
-      setState(prev => ({ ...prev, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
 
       const hasPermission = await requestNotificationPermissions();
       const permissionStatus = await getNotificationPermissionStatus();
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isEnabled: hasPermission,
         permissionStatus,
@@ -118,45 +128,71 @@ export const useNotifications = (
 
       return hasPermission;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({ ...prev, error: errorMessage }));
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setState((prev) => ({ ...prev, error: errorMessage }));
       return false;
     }
   }, []);
 
   /**
-   * Schedule a single water reminder
+   * Schedule a single water reminder - Debounced to prevent infinite loops
    * @param {number} currentIntake - Current water intake in ml
    * @param {number} dailyTarget - Daily target in ml
    * @returns {Promise<string | null>} Notification ID if scheduled successfully
    */
   const scheduleReminder = useCallback(
-    async (currentIntake: number, dailyTarget: number): Promise<string | null> => {
+    async (
+      currentIntake: number,
+      dailyTarget: number
+    ): Promise<string | null> => {
       try {
-        setState(prev => ({ ...prev, error: null }));
+        setState((prev) => ({ ...prev, error: null }));
 
         if (!state.isEnabled) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
-            error: 'Notifications are not enabled',
+            error: "Notifications are not enabled",
           }));
           return null;
         }
 
-        const reminderId = await scheduleWaterReminder(
-          notificationSettings,
-          currentIntake,
-          dailyTarget
-        );
+        // Create a unique key for this call to prevent duplicates
+        const callKey = `${currentIntake}-${dailyTarget}-${Date.now()}`;
 
-        if (reminderId) {
-          setState(prev => ({ ...prev, lastReminderId: reminderId }));
+        // Clear any existing timeout
+        if (scheduleTimeoutRef.current) {
+          clearTimeout(scheduleTimeoutRef.current);
         }
 
-        return reminderId;
+        // Debounce the call to prevent rapid successive calls
+        return new Promise((resolve) => {
+          scheduleTimeoutRef.current = setTimeout(async () => {
+            try {
+              const reminderId = await scheduleWaterReminder(
+                notificationSettings,
+                currentIntake,
+                dailyTarget
+              );
+
+              if (reminderId) {
+                setState((prev) => ({ ...prev, lastReminderId: reminderId }));
+              }
+
+              lastScheduleCall.current = callKey;
+              resolve(reminderId);
+            } catch (error) {
+              const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
+              setState((prev) => ({ ...prev, error: errorMessage }));
+              resolve(null);
+            }
+          }, 500); // 500ms debounce
+        });
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setState(prev => ({ ...prev, error: errorMessage }));
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        setState((prev) => ({ ...prev, error: errorMessage }));
         return null;
       }
     },
@@ -169,18 +205,19 @@ export const useNotifications = (
    */
   const cancelReminders = useCallback(async (): Promise<number> => {
     try {
-      setState(prev => ({ ...prev, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
 
       const cancelledCount = await cancelAllWaterReminders();
 
       if (cancelledCount > 0) {
-        setState(prev => ({ ...prev, lastReminderId: null }));
+        setState((prev) => ({ ...prev, lastReminderId: null }));
       }
 
       return cancelledCount;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({ ...prev, error: errorMessage }));
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setState((prev) => ({ ...prev, error: errorMessage }));
       return 0;
     }
   }, []);
@@ -194,12 +231,12 @@ export const useNotifications = (
   const scheduleRecurring = useCallback(
     async (currentIntake: number, dailyTarget: number): Promise<string[]> => {
       try {
-        setState(prev => ({ ...prev, error: null }));
+        setState((prev) => ({ ...prev, error: null }));
 
         if (!state.isEnabled) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
-            error: 'Notifications are not enabled',
+            error: "Notifications are not enabled",
           }));
           return [];
         }
@@ -211,13 +248,17 @@ export const useNotifications = (
         );
 
         if (scheduledIds.length > 0) {
-          setState(prev => ({ ...prev, lastReminderId: scheduledIds[scheduledIds.length - 1] }));
+          setState((prev) => ({
+            ...prev,
+            lastReminderId: scheduledIds[scheduledIds.length - 1],
+          }));
         }
 
         return scheduledIds;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setState(prev => ({ ...prev, error: errorMessage }));
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        setState((prev) => ({ ...prev, error: errorMessage }));
         return [];
       }
     },
@@ -230,18 +271,19 @@ export const useNotifications = (
    */
   const showTestNotification = useCallback(async (): Promise<string | null> => {
     try {
-      setState(prev => ({ ...prev, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
 
       const notificationId = await showImmediateNotification(
-        '💧 Test Notification',
-        'This is a test notification from Water Reminder!',
+        "💧 Test Notification",
+        "This is a test notification from Water Reminder!",
         notificationSettings.vibration
       );
 
       return notificationId;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({ ...prev, error: errorMessage }));
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setState((prev) => ({ ...prev, error: errorMessage }));
       return null;
     }
   }, [notificationSettings.vibration]);
@@ -252,16 +294,17 @@ export const useNotifications = (
   const refreshPermissionStatus = useCallback(async (): Promise<void> => {
     try {
       const permissionStatus = await getNotificationPermissionStatus();
-      const isEnabled = permissionStatus === 'granted';
+      const isEnabled = permissionStatus === "granted";
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         permissionStatus,
         isEnabled,
       }));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({ ...prev, error: errorMessage }));
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setState((prev) => ({ ...prev, error: errorMessage }));
     }
   }, []);
 
@@ -269,19 +312,25 @@ export const useNotifications = (
    * Clear error state
    */
   const clearError = useCallback((): void => {
-    setState(prev => ({ ...prev, error: null }));
+    setState((prev) => ({ ...prev, error: null }));
   }, []);
 
-  // Initialize on mount
+  // Initialize on mount - prevent infinite loops
   useEffect(() => {
     if (!state.isInitialized) {
       initialize();
     }
-  }, [initialize, state.isInitialized]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.isInitialized]); // Remove 'initialize' to prevent infinite loop
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      // Clear any pending timeouts
+      if (scheduleTimeoutRef.current) {
+        clearTimeout(scheduleTimeoutRef.current);
+      }
+      // Cleanup notification service
       cleanupNotificationService();
     };
   }, []);

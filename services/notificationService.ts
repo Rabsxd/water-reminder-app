@@ -4,29 +4,65 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type {
-  NotificationChannelInput,
-  NotificationContentInput,
-  NotificationResponse,
-  Subscription,
-} from "expo-notifications";
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { STORAGE_KEYS } from "../utils/constants";
 import type { NotificationSettings, WakeHours } from "../utils/types";
 
-/**
- * Configure notification behavior
- */
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Check if running in Expo Go and handle notifications gracefully
+const isExpoGo = (): boolean => {
+  try {
+    // In Expo Go, certain notification features are disabled in SDK 53+
+    // Check if we're in Expo Go environment
+    const Constants = require('expo-constants').default;
+    return Constants.executionEnvironment === 'storeClient';
+  } catch {
+    return false;
+  }
+};
+
+// Mock Notifications for Expo Go to prevent crashes
+const mockNotifications = {
+  setNotificationHandler: () => {},
+  requestPermissionsAsync: async () => ({ status: 'denied' }),
+  getPermissionsAsync: async () => ({ status: 'denied' }),
+  setNotificationChannelAsync: async () => {},
+  scheduleNotificationAsync: async () => '',
+  cancelScheduledNotificationAsync: async () => {},
+  getAllScheduledNotificationsAsync: async () => [],
+  addNotificationResponseReceivedListener: () => ({ remove: () => {} }),
+  AndroidImportance: { HIGH: 4 },
+  AndroidNotificationPriority: { HIGH: 1 },
+};
+
+// Dynamic import to prevent crashes in Expo Go
+let Notifications: any = mockNotifications;
+
+const initializeNotificationsModule = async () => {
+  if (!isExpoGo()) {
+    try {
+      Notifications = await import('expo-notifications');
+      // Configure notification behavior only if not in Expo Go
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
+    } catch (error) {
+      console.warn('Failed to load expo-notifications, using fallback:', error);
+      Notifications = mockNotifications;
+    }
+  }
+};
+
+// Types for fallback
+type NotificationContentInput = any;
+type NotificationChannelInput = any;
+type NotificationResponse = any;
+type Subscription = any;
 
 /**
  * Notification channel configuration for Android
@@ -40,6 +76,15 @@ export const NOTIFICATION_CHANNEL_ID = "water-reminders";
  */
 export const initializeNotifications = async (): Promise<boolean> => {
   try {
+    // Initialize notifications module (handles Expo Go gracefully)
+    await initializeNotificationsModule();
+
+    // Check if we're in Expo Go (notifications disabled)
+    if (isExpoGo()) {
+      console.log("Running in Expo Go - notifications are disabled in SDK 53+");
+      return false;
+    }
+
     // Request permissions
     const hasPermission = await requestNotificationPermissions();
     if (!hasPermission) {
@@ -68,6 +113,12 @@ export const initializeNotifications = async (): Promise<boolean> => {
  */
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   try {
+    // Check if we're in Expo Go first
+    if (isExpoGo()) {
+      console.log("Notifications disabled in Expo Go SDK 53+");
+      return false;
+    }
+
     if (Platform.OS === "android") {
       const { status } = await Notifications.requestPermissionsAsync();
       return status === "granted";
@@ -382,6 +433,11 @@ export const showImmediateNotification = async (
  */
 export const getNotificationPermissionStatus = async (): Promise<string> => {
   try {
+    // Check if we're in Expo Go first
+    if (isExpoGo()) {
+      return "disabled";
+    }
+
     const { status } = await Notifications.getPermissionsAsync();
     return status;
   } catch (error) {

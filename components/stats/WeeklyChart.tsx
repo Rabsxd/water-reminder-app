@@ -25,7 +25,7 @@ export interface WeeklyChartProps {
   /** Whether to show target line */
   showTargetLine?: boolean;
   /** Custom weekly data (overrides from useWaterStats) */
-  customData?: Array<{ day: string; intake: number; target: number }>;
+  customData?: { day: string; intake: number; target: number }[];
 }
 
 /**
