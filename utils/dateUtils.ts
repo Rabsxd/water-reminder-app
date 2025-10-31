@@ -3,7 +3,7 @@
  * Contains all date manipulation and formatting functions
  */
 
-import type { WaterLogEntry, HistoryEntry } from './types';
+import type { HistoryEntry, WaterLogEntry } from "./types";
 
 /**
  * Formats a date object to YYYY-MM-DD string
@@ -15,8 +15,8 @@ import type { WaterLogEntry, HistoryEntry } from './types';
  */
 export const formatDateToYYYYMMDD = (date: Date): string => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
@@ -30,11 +30,11 @@ export const formatDateToYYYYMMDD = (date: Date): string => {
  */
 export const formatDateForDisplay = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   };
-  return date.toLocaleDateString('en-US', options);
+  return date.toLocaleDateString("en-US", options);
 };
 
 /**
@@ -52,14 +52,14 @@ export const formatDate = (dateString: string): string => {
   yesterday.setDate(yesterday.getDate() - 1);
 
   if (date.toDateString() === today.toDateString()) {
-    return 'Hari Ini';
+    return "Hari Ini";
   } else if (date.toDateString() === yesterday.toDateString()) {
-    return 'Kemarin';
+    return "Kemarin";
   } else {
-    return date.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
     });
   }
 };
@@ -74,9 +74,9 @@ export const formatDate = (dateString: string): string => {
  */
 export const formatDateToDayName = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
+    weekday: "long",
   };
-  return date.toLocaleDateString('en-US', options);
+  return date.toLocaleDateString("en-US", options);
 };
 
 /**
@@ -89,9 +89,9 @@ export const formatDateToDayName = (date: Date): string => {
  */
 export const formatDateToShortDayName = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = {
-    weekday: 'short',
+    weekday: "short",
   };
-  return date.toLocaleDateString('en-US', options);
+  return date.toLocaleDateString("en-US", options);
 };
 
 /**
@@ -104,11 +104,11 @@ export const formatDateToShortDayName = (date: Date): string => {
  */
 export const formatTimeTo12Hour = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = {
-    hour: 'numeric',
-    minute: '2-digit',
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true,
   };
-  return date.toLocaleTimeString('en-US', options);
+  return date.toLocaleTimeString("en-US", options);
 };
 
 /**
@@ -121,11 +121,11 @@ export const formatTimeTo12Hour = (date: Date): string => {
  */
 export const formatTimeTo24Hour = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false,
   };
-  return date.toLocaleTimeString('en-US', options);
+  return date.toLocaleTimeString("en-US", options);
 };
 
 /**
@@ -251,7 +251,11 @@ export const getCurrentWeekDates = (): Date[] => {
  * isWithinWakeHours(new Date('2025-01-15T10:00:00'), 7, 22) // true
  * isWithinWakeHours(new Date('2025-01-15T23:00:00'), 7, 22) // false
  */
-export const isWithinWakeHours = (datetime: Date, wakeStart: number, wakeEnd: number): boolean => {
+export const isWithinWakeHours = (
+  datetime: Date,
+  wakeStart: number,
+  wakeEnd: number
+): boolean => {
   const currentHour = datetime.getHours();
 
   // Handle case where wakeEnd is after midnight (e.g., 22:00 to 02:00)
@@ -281,13 +285,13 @@ export const getTimestampAge = (timestamp: string): string => {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffMinutes < 1) {
-    return 'Just now';
+    return "Just now";
   } else if (diffMinutes < 60) {
-    return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+    return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
   } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
   } else if (diffDays === 1) {
-    return 'Yesterday';
+    return "Yesterday";
   } else {
     return formatDateForDisplay(past);
   }
@@ -304,7 +308,7 @@ export const getTimestampAge = (timestamp: string): string => {
 export const getTodayLogs = (logs: WaterLogEntry[]): WaterLogEntry[] => {
   const today = formatDateToYYYYMMDD(new Date());
 
-  return logs.filter(log => {
+  return logs.filter((log) => {
     const logDate = new Date(log.timestamp);
     const logDateString = formatDateToYYYYMMDD(logDate);
     return logDateString === today;
@@ -319,7 +323,9 @@ export const getTodayLogs = (logs: WaterLogEntry[]): WaterLogEntry[] => {
  * @example
  * groupLogsByDate([log1, log2]) // { '2025-01-15': [log1], '2025-01-16': [log2] }
  */
-export const groupLogsByDate = (logs: WaterLogEntry[]): Record<string, WaterLogEntry[]> => {
+export const groupLogsByDate = (
+  logs: WaterLogEntry[]
+): Record<string, WaterLogEntry[]> => {
   return logs.reduce((groups, log) => {
     const date = new Date(log.timestamp);
     const dateString = formatDateToYYYYMMDD(date);
@@ -342,7 +348,10 @@ export const groupLogsByDate = (logs: WaterLogEntry[]): Record<string, WaterLogE
  * @example
  * calculateGoalPercentage(1500, 2000) // 0.75
  */
-export const calculateGoalPercentage = (intake: number, target: number): number => {
+export const calculateGoalPercentage = (
+  intake: number,
+  target: number
+): number => {
   if (target === 0) return 0;
   return Math.min(intake / target, 1);
 };
@@ -374,12 +383,15 @@ export const isGoalCompleted = (
  * @example
  * calculateStreak(history, 2000) // Returns current streak
  */
-export const calculateStreak = (history: HistoryEntry[], currentTarget: number): number => {
+export const calculateStreak = (
+  history: HistoryEntry[],
+  currentTarget: number
+): number => {
   let streak = 0;
 
   // Check today first
   const today = formatDateToYYYYMMDD(new Date());
-  const todayEntry = history.find(entry => entry.date === today);
+  const todayEntry = history.find((entry) => entry.date === today);
 
   // If today is not completed, check if today has data at all
   if (!todayEntry || !isGoalCompleted(todayEntry.totalIntake, currentTarget)) {
@@ -391,7 +403,7 @@ export const calculateStreak = (history: HistoryEntry[], currentTarget: number):
 
   // Check previous days
   const sortedHistory = history
-    .filter(entry => entry.date !== today) // Exclude today
+    .filter((entry) => entry.date !== today) // Exclude today
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
 
   for (const entry of sortedHistory) {
@@ -414,16 +426,128 @@ export const calculateStreak = (history: HistoryEntry[], currentTarget: number):
  * @example
  * calculateWeeklyAverage(history, 7) // Returns average of last 7 days
  */
-export const calculateWeeklyAverage = (history: HistoryEntry[], days: number = 7): number => {
+export const calculateWeeklyAverage = (
+  history: HistoryEntry[],
+  days: number = 7
+): number => {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - days);
 
-  const recentHistory = history.filter(entry =>
-    new Date(entry.date) >= cutoffDate
+  const recentHistory = history.filter(
+    (entry) => new Date(entry.date) >= cutoffDate
   );
 
   if (recentHistory.length === 0) return 0;
 
-  const totalIntake = recentHistory.reduce((sum, entry) => sum + entry.totalIntake, 0);
+  const totalIntake = recentHistory.reduce(
+    (sum, entry) => sum + entry.totalIntake,
+    0
+  );
   return Math.round(totalIntake / recentHistory.length);
+};
+
+/**
+ * Gets the user's timezone offset in minutes
+ * @returns {number} Timezone offset in minutes from UTC
+ *
+ * @example
+ * getTimezoneOffset() // Returns -420 for Indonesia (WIB)
+ */
+export const getTimezoneOffset = (): number => {
+  return new Date().getTimezoneOffset();
+};
+
+/**
+ * Converts UTC date to local date (user's timezone)
+ * @param {Date} utcDate - Date in UTC
+ * @returns {Date} Date converted to local timezone
+ *
+ * @example
+ * utcToLocalDate(new Date('2025-01-15T14:30:00.000Z')) // Local date/time
+ */
+export const utcToLocalDate = (utcDate: Date): Date => {
+  const offset = utcDate.getTimezoneOffset();
+  const localDate = new Date(utcDate.getTime() - offset * 60 * 1000);
+  return localDate;
+};
+
+/**
+ * Converts local date to UTC date
+ * @param {Date} localDate - Date in local timezone
+ * @returns {Date} Date converted to UTC
+ *
+ * @example
+ * localToUtcDate(new Date()) // Current time in UTC
+ */
+export const localToUtcDate = (localDate: Date): Date => {
+  const offset = localDate.getTimezoneOffset();
+  const utcDate = new Date(localDate.getTime() + offset * 60 * 1000);
+  return utcDate;
+};
+
+/**
+ * Gets timezone name for display purposes
+ * @returns {string} Timezone name (e.g., "WIB", "UTC+7")
+ *
+ * @example
+ * getTimezoneName() // "WIB" for Indonesia Western Time
+ */
+export const getTimezoneName = (): string => {
+  const offset = -new Date().getTimezoneOffset() / 60;
+
+  // Common timezone mappings
+  const timezoneMap: { [key: number]: string } = {
+    0: "UTC",
+    1: "CET",
+    5: "PKT",
+    5.5: "IST",
+    7: "WIB", // Indonesia Western Time
+    8: "WITA", // Indonesia Central Time
+    8.5: "CST", // China Standard Time
+    9: "WIT", // Indonesia Eastern Time / Japan Standard Time
+  };
+
+  return timezoneMap[offset] || `UTC${offset >= 0 ? "+" : ""}${offset}`;
+};
+
+/**
+ * Adjusts date for timezone when comparing dates across different timezones
+ * @param {Date} date - Date to adjust
+ * @returns {string} Date string adjusted for local timezone
+ *
+ * @example
+ * getLocalDateString(new Date()) // '2025-01-15' in local timezone
+ */
+export const getLocalDateString = (date: Date): string => {
+  const localDate = utcToLocalDate(date);
+  return formatDateToYYYYMMDD(localDate);
+};
+
+/**
+ * Checks if two dates are the same day in local timezone
+ * @param {Date} date1 - First date to compare
+ * @param {Date} date2 - Second date to compare
+ * @returns {boolean} True if dates are the same day in local timezone
+ *
+ * @example
+ * isSameDay(new Date('2025-01-15'), new Date('2025-01-15T23:59:59')) // true
+ */
+export const isSameDay = (date1: Date, date2: Date): boolean => {
+  const local1 = utcToLocalDate(date1);
+  const local2 = utcToLocalDate(date2);
+  return formatDateToYYYYMMDD(local1) === formatDateToYYYYMMDD(local2);
+};
+
+/**
+ * Gets start of day in local timezone (important for daily reset logic)
+ * @param {Date} date - Date to get start of day for
+ * @returns {Date} Start of day (00:00:00) in local timezone
+ *
+ * @example
+ * getLocalStartOfDay(new Date('2025-01-15T14:30:00Z')) // 2025-01-15T00:00:00 local
+ */
+export const getLocalStartOfDay = (date: Date): Date => {
+  const localDate = utcToLocalDate(date);
+  localDate.setHours(0, 0, 0, 0);
+  return localDate;
 };

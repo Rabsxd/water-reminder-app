@@ -14,6 +14,7 @@ import {
   calculateGoalPercentage,
   getTodayLogs,
   isGoalCompleted,
+  calculateStreak,
 } from "../utils/dateUtils";
 import type { WaterLogEntry } from "../utils/types";
 
@@ -418,10 +419,9 @@ export const useWaterStats = () => {
   }, [state.history]);
 
   const currentStreak = useMemo(() => {
-    // This would be calculated from the history
-    // For now, return a placeholder
-    return 0;
-  }, [state.history]);
+    // Calculate streak using the 80% completion rule
+    return calculateStreak(state.history, state.settings.dailyTarget);
+  }, [state.history, state.settings.dailyTarget]);
 
   return {
     weeklyStats,

@@ -12,6 +12,8 @@ import { Header } from '../../components/common/Header';
 import { StreakCard } from '../../components/stats/StreakCard';
 import { WeeklyChart } from '../../components/stats/WeeklyChart';
 import { HistoryList } from '../../components/stats/HistoryList';
+import { ChartViewToggle } from '../../components/stats/ChartViewToggle';
+import { DataFilter, FilterOption } from '../../components/stats/DataFilter';
 
 /**
  * Statistics screen component
@@ -20,11 +22,17 @@ import { HistoryList } from '../../components/stats/HistoryList';
 export default function StatsScreen() {
   const { weeklyStats, monthlyStats, currentStreak, history } = useWaterStats();
 
+  // State for chart view mode and data filter
+  const [chartView, setChartView] = React.useState<'weekly' | 'monthly'>('weekly');
+  const [dataFilter, setDataFilter] = React.useState<FilterOption>('all');
+
   // Data for the main FlatList
   const listData = React.useMemo(() => [
     { id: 'header', type: 'header' },
     { id: 'streak', type: 'streak' },
+    { id: 'chartToggle', type: 'chartToggle' },
     { id: 'chart', type: 'chart' },
+    { id: 'dataFilter', type: 'dataFilter' },
     { id: 'history', type: 'history' },
   ], []);
 
@@ -53,11 +61,32 @@ export default function StatsScreen() {
           />
         );
 
+      case 'chartToggle':
+        return (
+          <ChartViewToggle
+            currentView={chartView}
+            onViewChange={setChartView}
+          />
+        );
+
       case 'chart':
         return (
           <WeeklyChart
             height={200}
             showTargetLine={true}
+            viewMode={chartView}
+            onBarPress={(day) => {
+              // Handle bar press - could show a detailed modal
+              console.log('Bar pressed:', day);
+            }}
+          />
+        );
+
+      case 'dataFilter':
+        return (
+          <DataFilter
+            currentFilter={dataFilter}
+            onFilterChange={setDataFilter}
           />
         );
 
@@ -86,7 +115,9 @@ export default function StatsScreen() {
     const heights: { [key: string]: number } = {
       header: 120,
       streak: 150,
+      chartToggle: 80,
       chart: 250,
+      dataFilter: 100,
       history: 400,
     };
 
