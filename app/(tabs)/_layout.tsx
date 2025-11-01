@@ -18,7 +18,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tabIconSelected,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
@@ -30,7 +31,7 @@ export default function TabLayout() {
             <IconSymbol
               size={28}
               name={focused ? 'house.fill' : 'house'}
-              color={isTargetReached ? Colors[colorScheme ?? 'light'].success : color}
+              color={isTargetReached && focused ? Colors[colorScheme ?? 'light'].success : color}
             />
           ),
         }}

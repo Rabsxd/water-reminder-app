@@ -126,7 +126,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
    * Render error fallback UI
    * @returns {JSX.Element} Error fallback component
    */
-  renderErrorFallback = (): JSX.Element => {
+  renderErrorFallback = () => {
     const { fallback, showRetry = true } = this.props;
     const { error } = this.state;
 
@@ -147,7 +147,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           </Text>
 
           <Text style={styles.subtext}>
-            Don't worry, your water intake data is safe. Please restart the app or try again.
+            {`Don't worry, your water intake data is safe. Please restart the app or try again.`}
           </Text>
 
           {showRetry && (

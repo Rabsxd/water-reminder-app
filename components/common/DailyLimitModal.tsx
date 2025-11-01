@@ -12,17 +12,22 @@
  * />
  */
 
-import React from 'react';
+import React from "react";
 import {
   Modal,
-  View,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
+  View,
+} from "react-native";
 
-import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import {
+  BORDER_RADIUS,
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+} from "../../utils/constants";
 
 /**
  * Daily Limit Modal Props
@@ -45,160 +50,168 @@ interface DailyLimitModalProps {
 /**
  * Daily Limit Modal Component
  */
-export const DailyLimitModal: React.FC<DailyLimitModalProps> = React.memo(({
-  visible,
-  currentIntake,
-  dailyLimit,
-  onDismiss,
-  onContinueAnyway,
-  showHealthWarning = true,
-}) => {
-  const exceededAmount = currentIntake - dailyLimit;
+export const DailyLimitModal: React.FC<DailyLimitModalProps> = React.memo(
+  ({
+    visible,
+    currentIntake,
+    dailyLimit,
+    onDismiss,
+    onContinueAnyway,
+    showHealthWarning = true,
+  }) => {
+    const exceededAmount = currentIntake - dailyLimit;
 
-  /**
-   * Handle continue anyway action
-   */
-  const handleContinueAnyway = () => {
-    if (onContinueAnyway) {
-      onContinueAnyway();
-    }
-    onDismiss();
-  };
+    /**
+     * Handle continue anyway action
+     */
+    const handleContinueAnyway = () => {
+      if (onContinueAnyway) {
+        onContinueAnyway();
+      }
+      onDismiss();
+    };
 
-  /**
-   * Handle contact healthcare action
-   */
-  const handleContactHealthcare = () => {
-    // In a real app, you might open a health app or provide more information
-    onDismiss();
-  };
+    /**
+     * Handle contact healthcare action
+     */
+    const handleContactHealthcare = () => {
+      // In a real app, you might open a health app or provide more information
+      onDismiss();
+    };
 
-  if (!visible) return null;
+    if (!visible) return null;
 
-  return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onDismiss}
-      accessible={true}
-      accessibilityLabel="Daily limit exceeded alert"
-      accessibilityRole="alert"
-    >
-      <View style={styles.overlay}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.modal}>
-            <View style={styles.emojiContainer}>
-              <Text style={styles.emoji}>⚠️</Text>
-            </View>
-
-            <Text style={styles.title}>Daily Limit Reached</Text>
-
-            <View style={styles.statsContainer}>
-              <Text style={styles.currentIntake}>
-                {currentIntake.toLocaleString()}ml
-              </Text>
-              <Text style={styles.limitText}>
-                Daily Limit: {dailyLimit.toLocaleString()}ml
-              </Text>
-              <Text style={styles.exceededText}>
-                +{exceededAmount.toLocaleString()}ml over limit
-              </Text>
-            </View>
-
-            <Text style={styles.warningMessage}>
-              You've exceeded the recommended daily water intake limit. For your health and safety,
-              please consider the following:
-            </Text>
-
-            {showHealthWarning && (
-              <View style={styles.healthWarningContainer}>
-                <Text style={styles.healthWarningTitle}>⚕️ Health Notice</Text>
-                <Text style={styles.healthWarningText}>
-                  Drinking excessive amounts of water can be dangerous and may lead to:
-                </Text>
-                <View style={styles.warningList}>
-                  <Text style={styles.warningItem}>• Water intoxication (hyponatremia)</Text>
-                  <Text style={styles.warningItem}>• Electrolyte imbalance</Text>
-                  <Text style={styles.warningItem}>• Kidney strain</Text>
-                  <Text style={styles.warningItem}>• Headaches and nausea</Text>
-                </View>
+    return (
+      <Modal
+        visible={visible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={onDismiss}
+        accessible={true}
+        accessibilityLabel="Daily limit exceeded alert"
+        accessibilityRole="alert"
+      >
+        <View style={styles.overlay}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modal}>
+              <View style={styles.emojiContainer}>
+                <Text style={styles.emoji}>⚠️</Text>
               </View>
-            )}
 
-            <View style={styles.recommendationContainer}>
-              <Text style={styles.recommendationTitle}>💡 Recommendations</Text>
-              <Text style={styles.recommendationText}>
-                • Stop drinking water for today{'\n'}
-                • Monitor how you feel{'\n'}
-                • Contact a healthcare professional if you experience symptoms{'\n'}
-                • Continue with normal intake tomorrow
+              <Text style={styles.title}>Daily Limit Reached</Text>
+
+              <View style={styles.statsContainer}>
+                <Text style={styles.currentIntake}>
+                  {currentIntake.toLocaleString()}ml
+                </Text>
+                <Text style={styles.limitText}>
+                  Daily Limit: {dailyLimit.toLocaleString()}ml
+                </Text>
+                <Text style={styles.exceededText}>
+                  +{exceededAmount.toLocaleString()}ml over limit
+                </Text>
+              </View>
+
+              <Text style={styles.warningMessage}>
+                {`You've exceeded the recommended daily water intake limit. For your health and safety,
+              please consider the following:`}
               </Text>
-            </View>
 
-            <View style={styles.buttonContainer}>
-              {onContinueAnyway && (
-                <TouchableOpacity
-                  style={[styles.button, styles.secondaryButton]}
-                  onPress={handleContinueAnyway}
-                  accessible={true}
-                  accessibilityLabel="Continue tracking anyway"
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.secondaryButtonText}>
-                    Continue Anyway
+              {showHealthWarning && (
+                <View style={styles.healthWarningContainer}>
+                  <Text style={styles.healthWarningTitle}>
+                    ⚕️ Health Notice
                   </Text>
-                </TouchableOpacity>
+                  <Text style={styles.healthWarningText}>
+                    Drinking excessive amounts of water can be dangerous and may
+                    lead to:
+                  </Text>
+                  <View style={styles.warningList}>
+                    <Text style={styles.warningItem}>
+                      • Water intoxication (hyponatremia)
+                    </Text>
+                    <Text style={styles.warningItem}>
+                      • Electrolyte imbalance
+                    </Text>
+                    <Text style={styles.warningItem}>• Kidney strain</Text>
+                    <Text style={styles.warningItem}>
+                      • Headaches and nausea
+                    </Text>
+                  </View>
+                </View>
               )}
 
-              <TouchableOpacity
-                style={[styles.button, styles.contactButton]}
-                onPress={handleContactHealthcare}
-                accessible={true}
-                accessibilityLabel="Learn more about water safety"
-                accessibilityRole="button"
-              >
-                <Text style={styles.contactButtonText}>
-                  Learn More
+              <View style={styles.recommendationContainer}>
+                <Text style={styles.recommendationTitle}>
+                  💡 Recommendations
                 </Text>
-              </TouchableOpacity>
+                <Text style={styles.recommendationText}>
+                  • Stop drinking water for today{"\n"}• Monitor how you feel
+                  {"\n"}• Contact a healthcare professional if you experience
+                  symptoms{"\n"}• Continue with normal intake tomorrow
+                </Text>
+              </View>
 
-              <TouchableOpacity
-                style={[styles.button, styles.primaryButton]}
-                onPress={onDismiss}
-                accessible={true}
-                accessibilityLabel="I understand, close this message"
-                accessibilityRole="button"
-              >
-                <Text style={styles.primaryButtonText}>
-                  I Understand
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                {onContinueAnyway && (
+                  <TouchableOpacity
+                    style={[styles.button, styles.secondaryButton]}
+                    onPress={handleContinueAnyway}
+                    accessible={true}
+                    accessibilityLabel="Continue tracking anyway"
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.secondaryButtonText}>
+                      Continue Anyway
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+                <TouchableOpacity
+                  style={[styles.button, styles.contactButton]}
+                  onPress={handleContactHealthcare}
+                  accessible={true}
+                  accessibilityLabel="Learn more about water safety"
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.contactButtonText}>Learn More</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, styles.primaryButton]}
+                  onPress={onDismiss}
+                  accessible={true}
+                  accessibilityLabel="I understand, close this message"
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.primaryButtonText}>I Understand</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </View>
-    </Modal>
-  );
-});
+          </ScrollView>
+        </View>
+      </Modal>
+    );
+  }
+);
 
-DailyLimitModal.displayName = 'DailyLimitModal';
+DailyLimitModal.displayName = "DailyLimitModal";
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
     padding: SPACING.LG,
   },
 
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
 
   modal: {
@@ -206,7 +219,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.LG,
     padding: SPACING.XL,
     maxWidth: 400,
-    width: '100%',
+    width: "100%",
     shadowColor: COLORS.SHADOW,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
@@ -215,7 +228,7 @@ const styles = StyleSheet.create({
   },
 
   emojiContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: SPACING.LG,
   },
 
@@ -227,20 +240,20 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZE_XL,
     fontWeight: TYPOGRAPHY.FONT_WEIGHT_BOLD,
     color: COLORS.ERROR,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: SPACING.LG,
   },
 
   statsContainer: {
-    backgroundColor: COLORS.ERROR + '10',
+    backgroundColor: COLORS.ERROR + "10",
     borderRadius: BORDER_RADIUS.MD,
     padding: SPACING.LG,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: SPACING.LG,
   },
 
   currentIntake: {
-    fontSize: TYPOGRAPHY.FONT_SIZE_XXL,
+    fontSize: TYPOGRAPHY.FONT_SIZE_2XL,
     fontWeight: TYPOGRAPHY.FONT_WEIGHT_BOLD,
     color: COLORS.ERROR,
     marginBottom: SPACING.XS,
@@ -262,12 +275,12 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZE_BASE,
     color: COLORS.TEXT_PRIMARY,
     lineHeight: 22,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: SPACING.LG,
   },
 
   healthWarningContainer: {
-    backgroundColor: COLORS.WARNING + '10',
+    backgroundColor: COLORS.WARNING + "10",
     borderRadius: BORDER_RADIUS.MD,
     padding: SPACING.LG,
     marginBottom: SPACING.LG,
@@ -326,7 +339,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.MD,
     paddingHorizontal: SPACING.LG,
     borderRadius: BORDER_RADIUS.FULL,
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   primaryButton: {
@@ -334,7 +347,7 @@ const styles = StyleSheet.create({
   },
 
   secondaryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: COLORS.BORDER,
   },

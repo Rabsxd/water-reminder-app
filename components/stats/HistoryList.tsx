@@ -306,8 +306,6 @@ export const HistoryList: React.FC<HistoryListProps> = React.memo(({
         // Empty state
         ListEmptyComponent={renderEmptyState}
         // Additional optimizations
-        decreasingReturnLengths={true}
-        updateCellsBatchingPeriod={50}
         keyboardShouldPersistTaps="handled"
       />
     </View>
