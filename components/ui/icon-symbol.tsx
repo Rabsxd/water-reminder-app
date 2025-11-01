@@ -16,8 +16,10 @@ type IconSymbolName = keyof typeof MAPPING;
 const MAPPING = {
   'house.fill': 'home',
   'house': 'home',
-  'chart.bar.fill': 'bar-chart',
-  'chart.bar': 'bar-chart',
+  // MaterialIcons uses different naming than SF Symbols. Use a best-effort mapping
+  // 'insert-chart' exists in MaterialIcons and is a reliable chart icon.
+  'chart.bar.fill': 'insert-chart',
+  'chart.bar': 'insert-chart',
   'gearshape.fill': 'settings',
   'gearshape': 'settings',
   'paperplane.fill': 'send',
@@ -42,5 +44,13 @@ export function IconSymbol({
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  // Provide a safe fallback if a mapping is missing or incorrect so the tab
+  // bar still shows an icon instead of nothing.
+  const mappedName = MAPPING[name] ?? 'help-outline';
+  if (!MAPPING[name]) {
+    // eslint-disable-next-line no-console
+    console.warn(`IconSymbol: missing mapping for '${String(name)}', using fallback '${mappedName}'`);
+  }
+
+  return <MaterialIcons color={color} size={size} name={mappedName} style={style} />;
 }
